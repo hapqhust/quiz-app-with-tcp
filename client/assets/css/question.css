@@ -1,0 +1,31 @@
+@import "styles.css";
+
+  .page-section .practice-title{
+    display: flex;
+    flex-direction: row;
+    line-height: 1.5rem;
+  }
+  .page-section .page-section-heading {
+    font-size: 1.2rem;
+  }
+  @media (min-width: 992px) {
+    .page-section .page-section-heading {
+      font-size: 1.8rem;
+    }
+  }
+
+  .image{
+    display: flex;
+  }
+
+  .image .img-fluid-practice {
+    max-width:15rem;
+    height:auto;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .invalid-feedback{
+    display: block;
+  }
