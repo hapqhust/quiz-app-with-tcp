@@ -65,7 +65,7 @@
             <!-- Contact Section Form-->
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-xl-7">
-                    <form id="contactForm" action="add_new_practice.php" method="post">
+                    <form id="contactForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="POST">
                         <!-- Topic input-->
                         <div class="form-floating mb-3">
                             <input class="form-control" id="topic" name="topic" type="text" required />
@@ -82,14 +82,6 @@
                             <input class="form-control" id="time" name="time" type="number" min=15 step=15 max=60
                                 required />
                             <label for="name">Thời gian làm bài</label>
-                        </div>
-
-                        <!-- Submit error message-->
-                        <!---->
-                        <!-- This is what your users will see when there is-->
-                        <!-- an error submitting the form-->
-                        <div class="d-none" id="submitErrorMessage">
-                            <div class="text-center text-danger mb-3">Error sending message!</div>
                         </div>
                         <!-- Submit Button-->
                         <input class=" form-control button btn btn-primary btn-xl mt-5" id="submitButton" type="submit"

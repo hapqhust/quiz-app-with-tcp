@@ -38,16 +38,18 @@
             <div class=" d-flex align-items-center flex-column">
                 <img class="masthead-avatar mb-5" src="assets/img/avataaars.svg" alt="..." />
             </div>
-            <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Danh sách các chế độ</h2>
+            <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Hãy chọn trong số các chức
+                năng dưới đây
+            </h2>
             <!-- Icon Divider-->
             <div class="divider-custom">
                 <div class="divider-custom-line"></div>
                 <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
                 <div class="divider-custom-line"></div>
             </div>
-            <div class="row justify-content-center">
+            <div class="row justify-content-center mt-3">
                 <!-- Portfolio Item 1-->
-                <div class="col-md-6 col-lg-6 mb-5">
+                <div class="col-md-6 col-lg-4 mb-5">
                     <div class="portfolio-item mx-auto" onclick="moveToPractice()">
                         <div
                             class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
@@ -59,7 +61,7 @@
                     </div>
                 </div>
                 <!-- Portfolio Item 2-->
-                <div class="col-md-6 col-lg-6 mb-5">
+                <div class="col-md-6 col-lg-4 mb-5">
                     <div class="portfolio-item mx-auto" onclick="moveToExam()">
                         <div
                             class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">

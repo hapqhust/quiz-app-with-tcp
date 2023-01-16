@@ -8,24 +8,34 @@
   .page-section .page-section-heading {
     font-size: 1.2rem;
   }
+
+  .page-section .page-section-question {
+    font-size: 1rem;
+  }
+
   @media (min-width: 992px) {
     .page-section .page-section-heading {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
+    }
+    
+    .page-section .page-section-question {
+      font-size: 1.4rem;
     }
   }
 
-  .image{
-    display: flex;
+  .form-check-input, .form-check-label{
+    font-size: 1.1rem;
   }
 
-  .image .img-fluid-practice {
-    max-width:15rem;
-    height:auto;
-    align-items: center;
-    margin-left: auto;
-    margin-right: auto;
-  }
 
-  .invalid-feedback{
-    display: block;
+  .btn-secondary2 {
+    color: #fff;
+    background-color: #fd973d;
+    border-color: #fd973d;
   }
+  .btn-secondary2:hover {
+    color: #fff;
+    background-color: #fb5108;
+    border-color: #fb5108;
+  }
+  

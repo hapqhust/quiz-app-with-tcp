@@ -1,0 +1,47 @@
+@import "styles.css";
+  .masthead-avatar {
+    width: 10rem;
+  }
+
+  .page-section .page-section-heading {
+    font-size: 1.5rem;
+  }
+
+  .page-section .page-section-score {
+    font-size: 6rem;
+   }
+
+  @media (min-width: 992px) {
+    .page-section .page-section-heading {
+      font-size: 2rem;
+    }
+  }
+
+  .divider-custom {
+    margin: 1.25rem 0 1.5rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .divider-custom .divider-custom-line {
+    width: 100%;
+    max-width: 10rem;
+    height: 0.25rem;
+    background-color: #007756 !important;
+    border-radius: 1rem;
+    border-color: #2c5041 !important;
+  }
+
+  .divider-custom .divider-custom-icon {
+    color: #007756;
+    font-size: 2rem;
+  }
+
+  .group-2 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }

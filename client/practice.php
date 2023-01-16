@@ -22,6 +22,12 @@
 </head>
 
 <body id="practice-list">
+
+    <script type="text/javascript" language="JavaScript">
+    function moveToQuestion() {
+        window.location = './question.php';
+    }
+    </script>
     <?php include_once("navbar.php") ?>
     <section class="page-section practice" id="practice">
         <div class="container">
@@ -40,7 +46,7 @@
                                         <div class=\"card-body\">
                                         <h5 class=\"card-title\">Card title</h5>
                                         <p class=\"card-text\">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href=\"#\" class=\"btn btn-primary\">Go somewhere</a>
+                                        <a href=\"#\" class=\"btn btn-primary\" onclick=\"moveToQuestion()\">Go somewhere</a>
                                     </div>
                                 </div>
                             </div>");

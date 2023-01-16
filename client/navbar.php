@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav2">
     <div class="container">
-        <a class="navbar-brand" href="#page-top">Quiz App</a>
+        <a class="navbar-brand" href="./index.php">Quiz App</a>
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <div class="navbar-nav ms-auto">
                 <div class="nav-item mx-0 mx-lg-1">
