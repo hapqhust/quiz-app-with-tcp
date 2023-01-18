@@ -50,12 +50,43 @@
 </head>
 
 <body id="add_new_practice">
+    <?php
+    session_start();
+
+    $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
+
+    // connect to server
+    $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
+
+    $msg = "05|";
+
+    $ret = socket_write($socket, $msg, strlen($msg));
+    if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
+
+    // receive response from server
+    $response = socket_read($socket, 1024);
+    if (!$response) die("client read fail:" . socket_strerror(socket_last_error()) . "\n");
+
+    $response = explode("|", $response);
+
+    if ($response[0] == "4") {
+        $_SESSION['num_topic'] = $response[1];
+        $_SESSION['topic_list'] = array();
+    }
+    for($i = 1; $i <= $_SESSION['num_topic']; $i++){
+        $_SESSION['topic_list'][$i] = $response[$i + 1];
+    }
+    echo print_r($_SESSION['topic_list']);
+    socket_close($socket);
+    ?>
     <?php include_once("navbar.php") ?>
     <section class="page-section" id="contact">
         <div class="container">
             <!-- Contact Section Heading-->
             <h2 class="page-section-heading text-center text-uppercase text-secondary mt-4 mb-0">Thiết lập thông số bài
-                luyện tập</h2>
+                luyện tập
+                <?php if(isset($_SESSION['topic_list'])) echo print_r($_SESSION['topic_list']); ?>
+            </h2>
             <!-- Icon Divider-->
             <div class="divider-custom">
                 <div class="divider-custom-line"></div>

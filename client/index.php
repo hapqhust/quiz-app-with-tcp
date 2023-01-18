@@ -16,13 +16,18 @@
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet"
         type="text/css" />
     <!-- Core theme CSS (includes Bootstrap)-->
-    <link href="assets/css/styles.css" rel="stylesheet" />
     <link href="assets/css/navbar.css" rel="stylesheet" />
     <link href="assets/css/home.css" rel="stylesheet" />
 </head>
 
 <body id="page-top">
-
+    <?php
+        session_start();
+        $host = "127.0.0.1";
+        $port = 8888;
+        $_SESSION['host_server'] = $host;
+        $_SESSION['port']= $port; 
+    ?>
     <script type="text/javascript" language="JavaScript">
     function moveToPractice() {
         window.location = './practice.php'
@@ -38,7 +43,8 @@
             <div class=" d-flex align-items-center flex-column">
                 <img class="masthead-avatar mb-5" src="assets/img/avataaars.svg" alt="..." />
             </div>
-            <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Hãy chọn trong số các chức
+            <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Hãy chọn trong số các
+                chức
                 năng dưới đây
             </h2>
             <!-- Icon Divider-->
