@@ -18,6 +18,7 @@ typedef enum {
 
     QUESTION_REQUEST,
     ANSWER,
+
     DASHBOARD,
     STOP,
     BREAK,
@@ -33,6 +34,11 @@ typedef enum {
     QUERY_FAIL,
     SHOW_LIST_TOPIC,
     ADD_NEW_PRACTICE_SUCCESSFUL,
+
+    LIST_QUESTION_ID,
+    QUESTION,
+    ANSWER_CORRECT,
+    ANSWER_INCORRECT,
 
     USERNAME_NOTFOUND,
     USERNAME_BLOCKED,
@@ -51,8 +57,6 @@ typedef enum {
     JOIN_GAME_FAIL,
     JOIN_GAME_SUCCESS,
 
-    QUESTION,
-    ANSWER_CORRECT,
     HELP_SUCCESS,
     SCORE_INFO,
 

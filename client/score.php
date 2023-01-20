@@ -27,6 +27,9 @@
         window.location = './index.php'
     }
     </script>
+    <?php
+    session_start();
+    ?>
     <?php include_once("navbar.php")?>
     <section class="page-section">
         <div class="container">
@@ -42,7 +45,7 @@
                 <div class="divider-custom-line"></div>
             </div>
             <div class="group-2">
-                <h2 class="page-section-score text-center text-uppercase text-danger mt-3">8/10</h2>
+                <h2 class="page-section-score text-center text-uppercase text-danger mt-3">  <?php echo (string)$_SESSION["score"] . '/' . (string)$_SESSION["total_question"] ?></h2>
                 <button class="btn btn-primary btn-xl mt-4" type="button" onclick="moveToHome()">Quay về trang
                     chủ</button>
             </div>

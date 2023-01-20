@@ -27,8 +27,12 @@
 
     if (isset($_POST['begin'])) {
         $practice_id = $_POST['id'];
-        $_SESSION['mode'] = "Practice";
+        $_SESSION['mode'] = "practice";
+        $_SESSION['total_question'] = $_SESSION["practice_list"][$practice_id]->get_num_question();
+        $_SESSION['current_question'] = 1;
         $_SESSION['practice_id'] = $practice_id;
+        $_SESSION['is_begin'] = true;
+        $_SESSION["score"] = 0;
         echo "<script> alert('$practice_id'); </script>";
         echo "<script>window.location.href = 'question.php';</script>";
 
@@ -63,11 +67,11 @@
     class Practice
     {
         // Properties
-        private $id;
-        private $name;
-        private $topic;
-        private $time;
-        private $num_question;
+        public $id;
+        public $name;
+        public $topic;
+        public $time;
+        public $num_question;
 
         // Methods
         function set_id($id)

@@ -9,12 +9,12 @@ int logoutUser(char*, int);
 void showListPractices(char *, int );
 void getListTopic(char *, int );
 void addNewPractice(char *message, int socket);
+int sendPracticeQuestion(char*, int);
+int answerQuestion(char* message, int socket);
+
 int loadGame(int);
 void encryptPassword(char*);
 void finish_with_error(MYSQL* con);
-int sendQuestion(char*, int);
-int answerQuestion(char* message, int socket);
-int helpAnswer(char* message, int socket);
 int calculateScore(char*, int, REQUEST_CODE);
 void showDashboard(int socket);
 int getHighScore(int socket);
