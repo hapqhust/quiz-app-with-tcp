@@ -8,6 +8,7 @@ int loginUser(char*, int);
 int logoutUser(char*, int);
 void showListPractices(char *, int );
 void getListTopic(char *, int );
+void addNewPractice(char *message, int socket);
 int loadGame(int);
 void encryptPassword(char*);
 void finish_with_error(MYSQL* con);

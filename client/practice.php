@@ -23,10 +23,48 @@
 
 <body id="practice-list">
     <?php
+    session_start();
+
+    if (isset($_POST['begin'])) {
+        $practice_id = $_POST['id'];
+        $_SESSION['mode'] = "Practice";
+        $_SESSION['practice_id'] = $practice_id;
+        echo "<script> alert('$practice_id'); </script>";
+        echo "<script>window.location.href = 'question.php';</script>";
+
+
+        // $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
+
+        // // connect to server
+        // $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
+
+        // $msg = "06|" . $name . "|" . $topic . "|" . $num_question . "|" . $time . "|" . $created_at . "|";
+
+        // $ret = socket_write($socket, $msg, strlen($msg));
+        // if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
+
+        // // receive response from server
+        // $response = socket_read($socket, 1024);
+        // if (!$response) die("client read fail:" . socket_strerror(socket_last_error()) . "\n");
+
+        // $response = explode("|", $response);
+
+        // if ($response[0] == "3") {
+        //     echo "<script>alert('Creating a new practice is unsuccessful !');</script>";
+        //     echo "<script>window.location.href = 'index.php';</script>";
+
+        // } else if ($response[0] == "5") {
+        //     echo "<script>window.location.href = 'practice.php';</script>";
+        // }
+        // socket_close($socket);
+    }
+    ?>
+    <?php
     class Practice
     {
         // Properties
         private $id;
+        private $name;
         private $topic;
         private $time;
         private $num_question;
@@ -38,7 +76,16 @@
         }
         function get_id()
         {
-            return $this->topic;
+            return $this->id;
+        }
+
+        function set_name($name)
+        {
+            $this->name = $name;
+        }
+        function get_name()
+        {
+            return $this->name;
         }
         function set_topic($topic)
         {
@@ -112,9 +159,10 @@
         if ($response[0] == "2") {
             $p = new Practice();
             $p->set_id($response[1]);
-            $p->set_topic($response[2]);
-            $p->set_num_question($response[3]);
-            $p->set_time($response[4]);
+            $p->set_name($response[2]);
+            $p->set_topic($response[3]);
+            $p->set_num_question($response[4]);
+            $p->set_time($response[5]);
         } else {
             echo "<script>alert('Game loading fail');</script>";
             echo "<script>window.location.href = 'home.php';</script>";
@@ -150,11 +198,14 @@
                                         <img class=\"img-fluid-practice\" src=\"assets/img/practice/practice.jpg\" alt=\"...\" />
                                     </div>
                                         <div class=\"card-body\">
-                                        <h5 class=\"card-title\"> Bài luyện tập số ".$i."</h5>
-                                        <p class=\"card-text mb-0\"> Chủ đề: ".$_SESSION['practice_list'][$i]->get_topic()."</p>
-                                        <p class=\"card-text mb-0\"> Số câu hỏi: ".$_SESSION['practice_list'][$i]->get_num_question()." câu </p>
-                                        <p class=\"card-text mb-2\"> Thời gian: ".$_SESSION['practice_list'][$i]->get_time()." phút</p>
-                                        <a href=\"#\" class=\"btn btn-primary\" onclick=\"moveToQuestion()\">Bắt đầu làm bài</a>
+                                        <h5 class=\"card-title\">" . $_SESSION['practice_list'][$i]->get_name() . "</h5>
+                                        <p class=\"card-text mb-0\"> Chủ đề: " . $_SESSION['practice_list'][$i]->get_topic() . "</p>
+                                        <p class=\"card-text mb-0\"> Số câu hỏi: " . $_SESSION['practice_list'][$i]->get_num_question() . " câu </p>
+                                        <p class=\"card-text mb-2\"> Thời gian: " . $_SESSION['practice_list'][$i]->get_time() . " phút</p>
+                                        <form id=\"startForm\" action=\"practice.php\"  method=\"POST\">
+                                            <input type=\"hidden\" name=\"id\" value=\"" . $_SESSION['practice_list'][$i]->get_id() . "\"/>
+                                            <input type=\"submit\" id=\"" . $_SESSION['practice_list'][$i]->get_id() . "\" class=\"btn btn-primary\" name=\"begin\" value =\"Bắt đầu làm bài\">
+                                        </form>
                                     </div>
                                 </div>
                             </div>");

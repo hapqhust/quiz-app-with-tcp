@@ -23,28 +23,48 @@
     session_start();
 
     if (isset($_POST['submit'])) {
+        $name = $_POST['name'];
         $topic = $_POST['topic'];
         $num_question = $_POST['num_question'];
+        $time = $_POST['time'];
+        $date   = new DateTime(); //this returns the current date time
+        $created_at = $date->format('d/m/Y-H:i:s');
         $success = 1;
 
-        if (!isset($topic) || strlen($topic) == 0) {
-            $topic_error = "Tên chủ đề là bắt buộc";
-            $success = 0;
-        } elseif (!preg_match("/^[a-zA-Z]+$/", $topic)) {
-            $topic_error = "Chủ đề không hợp lệ";
-            $success = 0;
-        }
-        if (!isset($num_question)) {
-            $num_question_error = "Số lượng câu hỏi là bắt buộc";
-            $success = 0;
-        } elseif ($num_question < 3 || $num_question > 20) {
-            $num_question_error = "Số lượng câu hỏi chỉ được nằm trong khoảng 3-20";
-            $success = 0;
-        }
-        // if($success){
-            echo "<script>window.location.href = 'question.php';</script>";
+        // echo "<script> alert('$topic . $num_question . $time'); </script>";
 
+        // if (!isset($name) || strlen($name) == 0) {
+        //     $name_error = "Tên chủ đề là bắt buộc";
+        //     $success = 0;
+        // } elseif (!preg_match("/^[a-zA-Z]+$/", $name)) {
+        //     $name_error = "Chủ đề không hợp lệ";
+        //     $success = 0;
         // }
+
+        $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
+
+        // connect to server
+        $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
+
+        $msg = "06|" . $name . "|" . $topic . "|" . $num_question . "|" . $time . "|" . $created_at . "|";
+
+        $ret = socket_write($socket, $msg, strlen($msg));
+        if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
+
+        // receive response from server
+        $response = socket_read($socket, 1024);
+        if (!$response) die("client read fail:" . socket_strerror(socket_last_error()) . "\n");
+
+        $response = explode("|", $response);
+
+        if ($response[0] == "3") {
+            echo "<script>alert('Creating a new practice is unsuccessful !');</script>";
+            echo "<script>window.location.href = 'index.php';</script>";
+            
+        } else if ($response[0] == "5") {
+            echo "<script>window.location.href = 'practice.php';</script>";
+        }
+        socket_close($socket);
     }
     ?>
 </head>
@@ -73,7 +93,7 @@
         $_SESSION['num_topic'] = $response[1];
         $_SESSION['topic_list'] = array();
     }
-    for($i = 1; $i <= $_SESSION['num_topic']; $i++){
+    for ($i = 1; $i <= $_SESSION['num_topic']; $i++) {
         $_SESSION['topic_list'][$i] = $response[$i + 1];
     }
     echo print_r($_SESSION['topic_list']);
@@ -85,7 +105,6 @@
             <!-- Contact Section Heading-->
             <h2 class="page-section-heading text-center text-uppercase text-secondary mt-4 mb-0">Thiết lập thông số bài
                 luyện tập
-                <?php if(isset($_SESSION['topic_list'])) echo print_r($_SESSION['topic_list']); ?>
             </h2>
             <!-- Icon Divider-->
             <div class="divider-custom">
@@ -96,27 +115,64 @@
             <!-- Contact Section Form-->
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-xl-7">
-                    <form id="contactForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="POST">
+                    <form id="contactForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+                        <div class="form-group row">
+                            <div class=" col-lg-12 mt-2">
+                                <label class="col-form-label-lg text-right col-lg-4"
+                                    style="color: #6c757d; font-size: 1.1rem "> Tên bài luyện tập <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control py-2" placeholder="Nhập tên bài luyện tập "
+                                    id="name" name="name" required />
+                            </div>
+                        </div>
                         <!-- Topic input-->
-                        <div class="form-floating mb-3">
-                            <input class="form-control" id="topic" name="topic" type="text" required />
-                            <label for="name">Chủ đề bài thi</label>
+                        <div class="form-group row">
+                            <label class="col-form-label-lg text-right col-lg-4"
+                                style="color: #6c757d; font-size: 1.1rem ">Chủ đề
+                                bài thi <span class="text-danger">*</span></label>
+                            <div class=" col-lg-12 mt-2">
+                                <select class="form-control py-2 form-select" id="topic" name="topic" required>
+                                    <?php if (isset($_SESSION['topic_list'])) {
+                                        foreach ($_SESSION['topic_list'] as $key => $value) {
+                                            echo "<option>$value</option>";
+                                        }
+                                    } ?>
+                                </select>
+                            </div>
                         </div>
                         <!-- Number Question input-->
-                        <div class="form-floating mb-3">
-                            <input class="form-control" id="num_question" name="num_question" type="number" min=3 max=20
-                                required />
-                            <label for="name">Số lượng câu hỏi</label>
+                        <div class="form-group row">
+                            <label class="col-form-label-lg text-right col-lg-4"
+                                style="color: #6c757d; font-size: 1.1rem ">Số lượng câu hỏi <span
+                                    class="text-danger">*</span></label>
+                            <div class=" col-lg-12 mt-2">
+                                <select class="form-control py-2 form-select" id="num_question" name="num_question"
+                                    required>
+                                    <?php
+                                    for ($i = 2; $i <= 10; $i++) {
+                                        echo "<option>$i</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
                         </div>
                         <!-- Time input-->
-                        <div class="form-floating mb-3">
-                            <input class="form-control" id="time" name="time" type="number" min=15 step=15 max=60
-                                required />
-                            <label for="name">Thời gian làm bài</label>
+                        <div class="form-group row">
+                            <label class="col-form-label-lg text-right col-lg-4"
+                                style="color: #6c757d; font-size: 1.1rem ">Thời gian làm bài <span
+                                    class="text-danger">*</span></label>
+                            <div class=" col-lg-12 mt-2">
+                                <select class="form-control py-2 form-select" id="time" name="time" required>
+                                    <option>5</option>
+                                    <option>10</option>
+                                    <option>15</option>
+                                    <option>20</option>
+                                </select>
+                            </div>
                         </div>
                         <!-- Submit Button-->
-                        <input class=" form-control button btn btn-primary btn-xl mt-5" id="submitButton" type="submit"
-                            name="submit" value="Bắt đầu làm bài"> </input>
+                        <input class=" form-control button btn btn-primary btn-lg mt-5" id="submitButton" type="submit"
+                            name="submit" value="Tạo bài luyện tập mới"> </input>
                     </form>
                 </div>
             </div>

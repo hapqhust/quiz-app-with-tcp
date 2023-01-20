@@ -1,4 +1,4 @@
 .project
-.vscode
+/.vscode
 *.class
 /bin/
