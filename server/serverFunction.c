@@ -29,12 +29,12 @@ void handle_message(char *message, int socket)
 {
     if (strlen(message) <= 0)
         return;
-    char subtext[3];
-    memcpy(subtext, &message[0], 2);
-    subtext[2] = '\0';
-    REQUEST_CODE type = atoi(subtext);
+    char subtext[BUFF_SIZE], *token;
+    strcpy(subtext, message);
+    token = strtok(subtext, "|");
+    REQUEST_CODE type = atoi(token);
     //  char server_message[200] = "\0";
-    printf("request: %s\n", subtext);
+    printf("request: %s\n", token);
     switch (type)
     {
     case LOGIN:
@@ -70,7 +70,7 @@ void handle_message(char *message, int socket)
     case ADD_NEW_EXAM:
     {
         printf("handle help\n");
-        helpAnswer(message, socket);
+        // helpAnswer(message, socket);
     }
     case ANSWER:
     {
@@ -363,7 +363,7 @@ int registerUser(char *message, int socket)
     else
     {
         // Insert new account into database
-        sprintf(query, "INSERT INTO users (username, password) VALUES ('%s', '%s')",
+        sprintf(query, "INSERT INTO users (username, password, role) VALUES ('%s', '%s', 'user')",
                 username, password);
         if (mysql_query(con, query))
         {
@@ -406,6 +406,15 @@ int loginUser(char *message, int socket)
 
     // Query to validate account
     // Check username
+
+    if (mysql_query(
+            con,
+            "CREATE TABLE IF NOT EXISTS using_accounts(id INT PRIMARY KEY AUTO_INCREMENT, username VARCHAR(255) UNIQUE)"))
+    {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        mysql_close(con);
+        return 0;
+    }
     sprintf(query, "SELECT * from users where username='%s'", username);
     printf("%s\n", query);
     if (mysql_query(con, query))
@@ -479,10 +488,11 @@ int logoutUser(char *message, int socket)
     sprintf(query, "DELETE FROM using_accounts where username='%s'", username);
     if (mysql_query(con, query))
     {
-        sprintf(server_message, "%d|%s\n", QUERY_FAIL, mysql_error(con));
+        sprintf(server_message, "%d|%s\n", LOGOUT_FAIL, mysql_error(con));
         send(socket, server_message, strlen(server_message), 0);
         return 0;
     }
+    printf("logout successful!\n");
     sprintf(server_message, "%d|\n", LOGOUT_SUCCESS);
     send(socket, server_message, strlen(server_message), 0);
 

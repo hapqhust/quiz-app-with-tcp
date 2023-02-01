@@ -13,8 +13,7 @@
     <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     <!-- Google fonts-->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet"
-        type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
     <!-- Core theme CSS (includes Bootstrap)-->
     <link href="assets/css/navbar.css" rel="stylesheet" />
     <link href="assets/css/practice.css" rel="stylesheet" />
@@ -120,7 +119,6 @@
     }
     ?>
     <?php
-    session_start();
 
     $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
 
@@ -177,9 +175,9 @@
     socket_close($socket);
     ?>
     <script type="text/javascript" language="JavaScript">
-    function moveToQuestion() {
-        window.location = './question.php';
-    }
+        function moveToQuestion() {
+            window.location = './question.php';
+        }
     </script>
     <?php include_once("navbar.php") ?>
     <section class="page-section practice" id="practice">

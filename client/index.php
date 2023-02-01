@@ -13,8 +13,7 @@
     <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     <!-- Google fonts-->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet"
-        type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
     <!-- Core theme CSS (includes Bootstrap)-->
     <link href="assets/css/navbar.css" rel="stylesheet" />
     <link href="assets/css/home.css" rel="stylesheet" />
@@ -22,22 +21,27 @@
 
 <body id="page-top">
     <?php
-        session_start();
-        $host = "127.0.0.1";
-        $port = 8888;
-        $_SESSION['host_server'] = $host;
-        $_SESSION['port']= $port; 
+    session_start();
+    $host = "127.0.0.1";
+    $port = 8888;
+    $_SESSION['host_server'] = $host;
+    $_SESSION['port'] = $port;
+
+    if (!$_SESSION["username"]) {
+        header("Location: login.php");
+        
+    }
     ?>
     <script type="text/javascript" language="JavaScript">
-    function moveToPractice() {
-        window.location = './practice.php'
-    }
+        function moveToPractice() {
+            window.location = './practice.php'
+        }
 
-    function moveToExam() {
-        window.location = './exam.php'
-    }
+        function moveToExam() {
+            window.location = './exam.php'
+        }
     </script>
-    <?php include_once("navbar.php")?>
+    <?php include_once("navbar.php") ?>
     <section class="page-section portfolio" id="portfolio">
         <div class="container">
             <div class=" d-flex align-items-center flex-column">
@@ -57,8 +61,7 @@
                 <!-- Portfolio Item 1-->
                 <div class="col-md-6 col-lg-4 mb-5">
                     <div class="portfolio-item mx-auto" onclick="moveToPractice()">
-                        <div
-                            class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+                        <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                             <div class="portfolio-item-caption-content text-center text-white">
                                 <h2>CHẾ ĐỘ LUYỆN TẬP</h2>
                             </div>
@@ -69,8 +72,7 @@
                 <!-- Portfolio Item 2-->
                 <div class="col-md-6 col-lg-4 mb-5">
                     <div class="portfolio-item mx-auto" onclick="moveToExam()">
-                        <div
-                            class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+                        <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                             <div class="portfolio-item-caption-content text-center text-white">
                                 <h2>CHẾ ĐỘ THI</h2>
                             </div>
