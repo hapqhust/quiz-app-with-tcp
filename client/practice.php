@@ -32,7 +32,7 @@
         $_SESSION['practice_id'] = $practice_id;
         $_SESSION['is_begin'] = true;
         $_SESSION["score"] = 0;
-        echo "<script> alert('$practice_id'); </script>";
+        echo "<script> alert(Bạn sẽ bắt đầu vs bài luyện tập số '$practice_id'); </script>";
         echo "<script>window.location.href = 'question.php';</script>";
 
 
@@ -125,7 +125,7 @@
     // connect to server
     $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
-    $msg = "03|" . "0" . "|";
+    $msg = "3|" . "0" . "|";
 
     $ret = socket_write($socket, $msg, strlen($msg));
     if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -141,11 +141,11 @@
         $_SESSION["position"] = 1;
         $_SESSION['practice_list'] = array();
     } else {
-        echo "<script>alert('Game loading fail');</script>";
+        echo "<script>alert('Loading fail');</script>";
         echo "<script>window.location.href = 'index.php';</script>";
     }
     while ($_SESSION['position'] <= $_SESSION['num_practice']) {
-        $msg = "03|" . $_SESSION["position"] . "|";
+        $msg = "3|" . $_SESSION["position"] . "|";
 
         $ret = socket_write($socket, $msg, strlen($msg));
         if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -166,8 +166,8 @@
             $p->set_num_question($response[4]);
             $p->set_time($response[5]);
         } else {
-            echo "<script>alert('Game loading fail');</script>";
-            echo "<script>window.location.href = 'home.php';</script>";
+            echo "<script>alert('Loading fail');</script>";
+            echo "<script>window.location.href = 'index.php';</script>";
         }
         $_SESSION["practice_list"][$_SESSION["position"]] = $p;
         $_SESSION["position"] += 1;
