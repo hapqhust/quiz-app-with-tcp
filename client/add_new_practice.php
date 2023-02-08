@@ -13,8 +13,7 @@
     <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     <!-- Google fonts-->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet"
-        type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
     <!-- Core theme CSS (includes Bootstrap)-->
     <link href="assets/css/navbar.css" rel="stylesheet" />
     <link href="assets/css/add_new.css" rel="stylesheet" />
@@ -60,7 +59,6 @@
         if ($response[0] == "3") {
             echo "<script>alert('Creating a new practice is unsuccessful !');</script>";
             echo "<script>window.location.href = 'index.php';</script>";
-            
         } else if ($response[0] == "5") {
             echo "<script>window.location.href = 'practice.php';</script>";
         }
@@ -118,17 +116,13 @@
                     <form id="contactForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
                         <div class="form-group row">
                             <div class=" col-lg-12 mt-2">
-                                <label class="col-form-label-lg text-right col-lg-4"
-                                    style="color: #6c757d; font-size: 1.1rem "> Tên bài luyện tập <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control py-2" placeholder="Nhập tên bài luyện tập "
-                                    id="name" name="name" required />
+                                <label class="col-form-label-lg text-right col-lg-4" style="color: #6c757d; font-size: 1.1rem "> Tên bài luyện tập <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control py-2" placeholder="Nhập tên bài luyện tập " id="name" name="name" required />
                             </div>
                         </div>
                         <!-- Topic input-->
                         <div class="form-group row">
-                            <label class="col-form-label-lg text-right col-lg-4"
-                                style="color: #6c757d; font-size: 1.1rem ">Chủ đề
+                            <label class="col-form-label-lg text-right col-lg-4" style="color: #6c757d; font-size: 1.1rem ">Chủ đề
                                 bài thi <span class="text-danger">*</span></label>
                             <div class=" col-lg-12 mt-2">
                                 <select class="form-control py-2 form-select" id="topic" name="topic" required>
@@ -142,12 +136,9 @@
                         </div>
                         <!-- Number Question input-->
                         <div class="form-group row">
-                            <label class="col-form-label-lg text-right col-lg-4"
-                                style="color: #6c757d; font-size: 1.1rem ">Số lượng câu hỏi <span
-                                    class="text-danger">*</span></label>
+                            <label class="col-form-label-lg text-right col-lg-4" style="color: #6c757d; font-size: 1.1rem ">Số lượng câu hỏi <span class="text-danger">*</span></label>
                             <div class=" col-lg-12 mt-2">
-                                <select class="form-control py-2 form-select" id="num_question" name="num_question"
-                                    required>
+                                <select class="form-control py-2 form-select" id="num_question" name="num_question" required>
                                     <?php
                                     for ($i = 2; $i <= 10; $i++) {
                                         echo "<option>$i</option>";
@@ -158,9 +149,7 @@
                         </div>
                         <!-- Time input-->
                         <div class="form-group row">
-                            <label class="col-form-label-lg text-right col-lg-4"
-                                style="color: #6c757d; font-size: 1.1rem ">Thời gian làm bài <span
-                                    class="text-danger">*</span></label>
+                            <label class="col-form-label-lg text-right col-lg-4" style="color: #6c757d; font-size: 1.1rem ">Thời gian làm bài <span class="text-danger">*</span></label>
                             <div class=" col-lg-12 mt-2">
                                 <select class="form-control py-2 form-select" id="time" name="time" required>
                                     <option>5</option>
@@ -171,8 +160,7 @@
                             </div>
                         </div>
                         <!-- Submit Button-->
-                        <input class=" form-control button btn btn-primary btn-lg mt-5" id="submitButton" type="submit"
-                            name="submit" value="Tạo bài luyện tập mới"> </input>
+                        <input class=" form-control button btn btn-primary btn-lg mt-5" id="submitButton" type="submit" name="submit" value="Tạo bài luyện tập mới"> </input>
                     </form>
                 </div>
             </div>

@@ -53,6 +53,10 @@ void handle_message(char *message, int socket)
         printf("Handle list practices\n");
         showListPractices(message, socket);
         break;
+    case SHOW_LIST_EXAM:
+        printf("Handle list exams\n");
+        showListExams(message, socket);
+        break;
     case GET_LIST_TOPIC:
         printf("Handle list topic\n");
         getListTopic(message, socket);
@@ -61,16 +65,21 @@ void handle_message(char *message, int socket)
         printf("Handle add new practice\n");
         addNewPractice(message, socket);
         break;
+    case ADD_NEW_EXAM:
+        printf("Handle add new exam\n");
+        addNewExam(message, socket);
+        break;
     case JOIN_PRACTICE:
     {
         printf("handle join practice\n");
         sendPracticeQuestion(message, socket);
         break;
     }
-    case ADD_NEW_EXAM:
+    case JOIN_EXAM:
     {
-        printf("handle help\n");
-        // helpAnswer(message, socket);
+        printf("handle join practice\n");
+        sendExamQuestion(message, socket);
+        break;
     }
     case ANSWER:
     {
@@ -328,6 +337,86 @@ int sendPracticeQuestion(char *message, int socket)
         send(socket, serverMess, strlen(serverMess), 0);
     }
 }
+
+int sendExamQuestion(char *message, int socket)
+{
+    printf("Start send question \n");
+    char serverMess[BUFF_SIZE] = "\0", list_question[BUFF_SIZE] = "\0";
+    char query[200] = "\0";
+    int exam_id, position;
+    char temp[BUFF_SIZE];
+    char *token;
+    char question[BUFF_SIZE];
+    int question_id, count;
+    char buff[BUFF_SIZE];
+    int bytes_received = 0;
+    int send_status = 0;
+
+    // Get position
+    printf("%s\n", message);
+    token = strtok(message, "|");
+
+    token = strtok(NULL, "|");
+    strcpy(temp, token);
+    exam_id = atoi(temp);
+
+    token = strtok(NULL, "|");
+    strcpy(temp, token);
+    position = atoi(temp);
+
+    printf("Position %d", position);
+
+    // Get question from database
+    if (position == 0)
+    {
+        sprintf(query, "SELECT * FROM exam_question WHERE exam_id = %d ORDER BY RAND()", exam_id);
+        printf("%s\n", query);
+        if (mysql_query(con, query))
+        {
+            sprintf(serverMess, "%d|%s\n", QUERY_FAIL, mysql_error(con));
+            send(socket, serverMess, strlen(serverMess), 0);
+            return 0;
+        }
+        MYSQL_RES *result = mysql_store_result(con);
+        if (mysql_num_rows(result) == 0)
+        {
+            sprintf(serverMess, "%d|Question not found|\n", QUERY_FAIL);
+            printf("Cannot find questions \n");
+            send(socket, serverMess, strlen(serverMess), 0);
+            return 0;
+        }
+        else
+        {
+            count = mysql_num_rows(result);
+            MYSQL_ROW row;
+            while ((row = mysql_fetch_row(result)) != NULL)
+            {
+                strcat(list_question, row[1]);
+                strcat(list_question, "|");
+            }
+            sprintf(serverMess, "%d|%d|%s", LIST_QUESTION_ID, count, list_question);
+            printf("%s\n", serverMess);
+            send(socket, serverMess, strlen(serverMess), 0);
+
+        }
+    }
+    else
+    {
+        question_id = position;
+        sprintf(query, "SELECT * FROM questions WHERE id = %d", question_id);
+        printf("%s\n", query);
+        if (mysql_query(con, query))
+        {
+            sprintf(serverMess, "%d|%s\n", QUERY_FAIL, mysql_error(con));
+            send(socket, serverMess, strlen(serverMess), 0);
+        }
+        MYSQL_RES *result_ques = mysql_store_result(con);
+        MYSQL_ROW row_question = mysql_fetch_row(result_ques);
+        sprintf(question, "%d|%s|%s|%s|%s|%s\n", atoi(row_question[0]), row_question[1], row_question[2], row_question[3], row_question[4], row_question[5]);
+        sprintf(serverMess, "%d|%s|", QUESTION, question);
+        send(socket, serverMess, strlen(serverMess), 0);
+    }
+}
 int registerUser(char *message, int socket)
 {
     char username[255] = "\0";
@@ -564,6 +653,61 @@ void showListPractices(char *message, int socket)
     return;
 }
 
+void showListExams(char *message, int socket)
+{
+    printf("Start send list exams\n");
+    int position;
+    char temp[BUFF_SIZE];
+    char serverMess[BUFF_SIZE] = "\0";
+    char query[200] = "\0";
+    char *token;
+    char question[BUFF_SIZE];
+    int level;
+
+    // Get position
+    printf("%s\n", message);
+    token = strtok(message, "|");
+    token = strtok(NULL, "|");
+    strcpy(temp, token);
+    position = atoi(temp);
+    printf("Position %d\n", position);
+    // Get position to choose appropriate question
+    if (position == 0)
+    {
+        sprintf(query, "SELECT * FROM exam_info");
+        printf("%s\n", query);
+        if (mysql_query(con, query))
+        {
+            sprintf(serverMess, "%d|%s\n", QUERY_FAIL, mysql_error(con));
+            send(socket, serverMess, strlen(serverMess), 0);
+            return;
+        }
+        MYSQL_RES *result = mysql_store_result(con);
+        sprintf(serverMess, "%d|%lld\n", NUM_EXAM, mysql_num_rows(result));
+    }
+    else
+    {
+        sprintf(query, "SELECT * FROM exam_info WHERE id = %d", position);
+        printf("%s\n", query);
+        if (mysql_query(con, query))
+        {
+            sprintf(serverMess, "%d|%s\n", QUERY_FAIL, mysql_error(con));
+            send(socket, serverMess, strlen(serverMess), 0);
+            return;
+        }
+        MYSQL_RES *result = mysql_store_result(con);
+        MYSQL_ROW row;
+        if ((row = mysql_fetch_row(result)) != NULL)
+        {
+            sprintf(serverMess, "%d|%s|%s|%s|%s|%s|%s|%s\n", SHOW_EXAM_DETAIL, row[0], row[1], row[2], row[3], row[4], row[5], row[6]);
+            // sprintf(serverMess, "%s", list_topic);
+        }
+    }
+    printf("thông điệp là: %s\n", serverMess);
+    send(socket, serverMess, strlen(serverMess), 0);
+    return;
+}
+
 void getListTopic(char *message, int socket)
 {
     char serverMess[BUFF_SIZE] = "\0";
@@ -714,5 +858,121 @@ void addNewPractice(char *message, int socket)
     }
 
     sprintf(serverMess, "%d|%s\n", ADD_NEW_PRACTICE_SUCCESSFUL, "Add new practice successful");
+    send(socket, serverMess, strlen(serverMess), 0);
+}
+
+void addNewExam(char *message, int socket)
+{
+    char serverMess[BUFF_SIZE] = "\0";
+    char name[BUFF_SIZE], topic[BUFF_SIZE], temp[BUFF_SIZE], start_at[BUFF_SIZE], close_at[BUFF_SIZE];
+    char *token;
+    int num_question, time, id;
+    char query[200] = "\0";
+
+    printf("%s\n", message);
+    token = strtok(message, "|");
+
+    token = strtok(NULL, "|");
+    strcpy(name, token);
+
+    token = strtok(NULL, "|");
+    strcpy(topic, token);
+
+    token = strtok(NULL, "|");
+    strcpy(temp, token);
+    num_question = atoi(temp);
+
+    token = strtok(NULL, "|");
+    strcpy(temp, token);
+    time = atoi(temp);
+
+    token = strtok(NULL, "|");
+    strcpy(start_at, token);
+
+    token = strtok(NULL, "|");
+    strcpy(close_at, token);
+
+    sprintf(query, "INSERT INTO exam_info(exam_name, topic, num_question, time, start_at, close_at)"
+                   "VALUES('%s','%s',%d,%d,'%s','%s')",
+            name, topic, num_question, time, start_at, close_at);
+    printf("%s\n", query);
+    if (mysql_query(con, query))
+    {
+        sprintf(serverMess, "%d|%s\n", QUERY_FAIL, mysql_error(con));
+        send(socket, serverMess, strlen(serverMess), 0);
+        return;
+    }
+
+    sprintf(query, "SELECT id FROM exam_info WHERE start_at = '%s'", start_at);
+    printf("%s\n", query);
+    if (mysql_query(con, query))
+    {
+        sprintf(serverMess, "%d|%s\n", QUERY_FAIL, mysql_error(con));
+        send(socket, serverMess, strlen(serverMess), 0);
+        return;
+    }
+    MYSQL_RES *result = mysql_store_result(con);
+    if (mysql_num_rows(result) == 0)
+    {
+        sprintf(serverMess, "%d|Query fail when select id from exam_info table\n", QUERY_FAIL);
+        printf("Query fail when select id from exam_info table \n");
+        send(socket, serverMess, strlen(serverMess), 0);
+        return;
+    }
+    else
+    {
+        MYSQL_ROW row;
+        if ((row = mysql_fetch_row(result)) != NULL)
+        {
+            printf("Id la: %d\n", atoi(row[0]));
+            id = atoi(row[0]);
+        }
+    }
+
+    sprintf(query, "CREATE TABLE IF NOT EXISTS exam_question(exam_id INT, question_id INT,"
+                   "FOREIGN KEY (exam_id) REFERENCES exam_info(id),FOREIGN KEY (question_id) REFERENCES questions(id))");
+    printf("%s\n", query);
+    if (mysql_query(con, query))
+    {
+        sprintf(serverMess, "%d|%s\n", QUERY_FAIL, mysql_error(con));
+        send(socket, serverMess, strlen(serverMess), 0);
+        return;
+    }
+    sprintf(query, "SELECT id FROM questions WHERE topic = '%s' ORDER BY RAND() LIMIT %d", topic, num_question);
+    printf("%s\n", query);
+    if (mysql_query(con, query))
+    {
+        sprintf(serverMess, "%d|%s\n", QUERY_FAIL, mysql_error(con));
+        send(socket, serverMess, strlen(serverMess), 0);
+        return;
+    }
+    result = mysql_store_result(con);
+    if (mysql_num_rows(result) == 0)
+    {
+        sprintf(serverMess, "%d|Query fail\n", QUERY_FAIL);
+        printf("Query fail \n");
+        send(socket, serverMess, strlen(serverMess), 0);
+        return;
+    }
+    else
+    {
+        MYSQL_ROW row;
+        while ((row = mysql_fetch_row(result)) != NULL)
+        {
+            printf("Id la: %d\n", atoi(row[0]));
+            // id = row[0];
+
+            sprintf(query, "INSERT INTO exam_question(exam_id, question_id) VALUES(%d,%d)",
+                    id, atoi(row[0]));
+            printf("%s\n", query);
+            if (mysql_query(con, query))
+            {
+                sprintf(serverMess, "%d|%s\n", QUERY_FAIL, mysql_error(con));
+                send(socket, serverMess, strlen(serverMess), 0);
+            }
+        }
+    }
+
+    sprintf(serverMess, "%d|%s\n", ADD_NEW_EXAM_SUCCESSFUL, "Add new exam successful");
     send(socket, serverMess, strlen(serverMess), 0);
 }

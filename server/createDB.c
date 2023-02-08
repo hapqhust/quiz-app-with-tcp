@@ -117,6 +117,15 @@ int main(int argc, char const *argv[])
   printf("%s\n", "Create table practice_info succesfully ...");
 
 
+  if (mysql_query(con, "CREATE TABLE IF NOT EXISTS exam_info(id INT PRIMARY KEY AUTO_INCREMENT,"
+                       "exam_name VARCHAR(200), topic VARCHAR(100), num_question INT, time INT, start_at VARCHAR(30), close_at VARCHAR(30))"))
+  {
+    fprintf(stderr, "%s\n", mysql_error(con));
+    mysql_close(con);
+    exit(1);
+  }
+  printf("%s\n", "Create table exam_info succesfully ...");
+
   // if (mysql_query(
   //         con,
   //         "INSERT INTO questions(question, answer1, answer2, answer3, answer4, trueanswer, topic) "

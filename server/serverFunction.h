@@ -7,9 +7,12 @@ int registerUser(char*, int);
 int loginUser(char*, int);
 int logoutUser(char*, int);
 void showListPractices(char *, int );
+void showListExams(char *, int );
 void getListTopic(char *, int );
 void addNewPractice(char *message, int socket);
+void addNewExam(char *message, int socket);
 int sendPracticeQuestion(char*, int);
+int sendExamQuestion(char*, int);
 int answerQuestion(char* message, int socket);
 
 int loadGame(int);
