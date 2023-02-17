@@ -21,6 +21,10 @@
     <link rel="stylesheet" href="https://cdn.korzh.com/metroui/v4/css/metro-all.min.css">
 
     <?php
+
+    use ProtocolCode\RequestCode;
+    use ProtocolCode\ResponseCode;
+
     session_start();
 
     if (isset($_POST['submit'])) {

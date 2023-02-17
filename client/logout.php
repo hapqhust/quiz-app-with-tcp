@@ -1,4 +1,7 @@
 <?php
+    use ProtocolCode\ResponseCode;
+    use ProtocolCode\RequestCode;
+
     session_start();
     if (isset($_POST['logout'])) {
 
@@ -8,7 +11,7 @@
             // connect to server
             $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
-            // 
+            //
             $msg = RequestCode::LOGOUT . "|" . $_SESSION["username"] . "|";
 
             $ret = socket_write($socket, $msg, strlen($msg));
@@ -25,7 +28,7 @@
                 session_destroy();
                 echo "<script>alert('Are you sure logout ?');</script>";
                 echo "<script>window.location.href = 'login.php';</script>";
-                
+
             } else {
                 echo "<script>alert('fail!');</script>";
                 echo "<script>window.location.href = 'index.php';</script>";

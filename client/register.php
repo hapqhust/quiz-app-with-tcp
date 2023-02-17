@@ -17,6 +17,9 @@
     <!-- Core theme CSS (includes Bootstrap)-->
     <link href="assets/css/navbar.css" rel="stylesheet" />
     <?php
+    use ProtocolCode\RequestCode;
+    use ProtocolCode\ResponseCode;
+    
     session_start();
     if (isset($_POST['signup'])) {
         $username = $_POST['username'];

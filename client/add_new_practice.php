@@ -19,6 +19,10 @@
     <link href="assets/css/add_new.css" rel="stylesheet" />
 
     <?php
+
+    use ProtocolCode\RequestCode;
+use ProtocolCode\ResponseCode;
+
     session_start();
 
     if (isset($_POST['submit'])) {
@@ -45,7 +49,7 @@
         // connect to server
         $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
-        $msg = "06|" . $name . "|" . $topic . "|" . $num_question . "|" . $time . "|" . $created_at . "|";
+        $msg = RequestCode::ADD_NEW_PRACTICE . "|" . $name . "|" . $topic . "|" . $num_question . "|" . $time . "|" . $created_at . "|";
 
         $ret = socket_write($socket, $msg, strlen($msg));
         if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -56,10 +60,10 @@
 
         $response = explode("|", $response);
 
-        if ($response[0] == "3") {
+        if ($response[0] == ResponseCode::QUERY_FAIL) {
             echo "<script>alert('Creating a new practice is unsuccessful !');</script>";
             echo "<script>window.location.href = 'index.php';</script>";
-        } else if ($response[0] == "5") {
+        } else if ($response[0] == ResponseCode::SHOW_PRACTICE_DETAIL) {
             echo "<script>window.location.href = 'practice.php';</script>";
         }
         socket_close($socket);
