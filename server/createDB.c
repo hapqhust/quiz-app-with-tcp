@@ -76,22 +76,22 @@ int main(int argc, char const *argv[])
 
   if (mysql_query(
           con,
-          "CREATE TABLE users(id INT PRIMARY KEY AUTO_INCREMENT, username VARCHAR(50) UNIQUE, password VARCHAR(20), role VARCHAR(10))"))
+          "CREATE TABLE users(id INT PRIMARY KEY AUTO_INCREMENT, username VARCHAR(50) UNIQUE, password VARCHAR(100), role VARCHAR(10))"))
   {
     fprintf(stderr, "%s\n", mysql_error(con));
     mysql_close(con);
     exit(1);
   }
-  char pass1[10] = "123456", query[1024];
-  encryptPassword(pass1);
-  sprintf(query, "INSERT INTO users(username, password, role) VALUES('admin1', '%s', 'admin'), ('hapham', '%s', 'admin')", pass1, pass1);
-  if (mysql_query(
-          con, query))
-  {
-    fprintf(stderr, "%s\n", mysql_error(con));
-    mysql_close(con);
-    exit(1);
-  }
+  // char pass1[10] = "123456", query[1024];
+  // encryptPassword(pass1);
+  // sprintf(query, "INSERT INTO users(username, password, role) VALUES('admin1', '%s', 'admin'), ('hapham', '%s', 'admin')", pass1, pass1);
+  // if (mysql_query(
+  //         con, query))
+  // {
+  //   fprintf(stderr, "%s\n", mysql_error(con));
+  //   mysql_close(con);
+  //   exit(1);
+  // }
   printf("%s\n", "Create table users succesfully ...");
 
   // ****CREATE USER QUESTION****

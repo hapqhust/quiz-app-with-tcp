@@ -9,7 +9,7 @@
             $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
             // 
-            $msg = "2|" . $_SESSION["username"] . "|";
+            $msg = RequestCode::LOGOUT . "|" . $_SESSION["username"] . "|";
 
             $ret = socket_write($socket, $msg, strlen($msg));
             if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -21,7 +21,7 @@
 
             // split response from server
             $response = explode("|", $response);
-            if ($response[0] == "17") {
+            if ($response[0] == ResponseCode::LOGOUT_SUCCESS) {
                 session_destroy();
                 echo "<script>alert('Are you sure logout ?');</script>";
                 echo "<script>window.location.href = 'login.php';</script>";
@@ -34,5 +34,3 @@
             // close socket
             socket_close($socket);
         }
-
-    ?>

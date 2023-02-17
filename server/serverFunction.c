@@ -397,7 +397,6 @@ int sendExamQuestion(char *message, int socket)
             sprintf(serverMess, "%d|%d|%s", LIST_QUESTION_ID, count, list_question);
             printf("%s\n", serverMess);
             send(socket, serverMess, strlen(serverMess), 0);
-
         }
     }
     else
@@ -431,7 +430,6 @@ int registerUser(char *message, int socket)
     strcpy(username, token);
     token = strtok(NULL, "|");
     strcpy(password, token);
-    encryptPassword(password);
 
     // Check username is existed ?
     sprintf(query, "SELECT * FROM users WHERE username = '%s' ",
@@ -470,7 +468,7 @@ int registerUser(char *message, int socket)
             return 0;
         }
 
-        sprintf(serverMess, "%d|Successfully registered|\n", REGISTER_SUCCESS);
+        sprintf(serverMess, "%d|%s|Successfully registered|\n", REGISTER_SUCCESS, "user");
         send(socket, serverMess, sizeof(serverMess), 0);
         return 1;
     }
@@ -481,6 +479,7 @@ int loginUser(char *message, int socket)
     printf("Start handle login\n");
     char username[255] = "\0";
     char password[255] = "\0";
+    char role[20] = "\0";
     char serverMess[BUFF_SIZE] = "\0";
     char *token;
     char query[BUFF_SIZE] = "\0";
@@ -490,7 +489,6 @@ int loginUser(char *message, int socket)
     strcpy(username, token);
     token = strtok(NULL, "|");
     strcpy(password, token);
-    encryptPassword(password);
     //    printf("%s %s\n",username, password);
 
     // Query to validate account
@@ -523,7 +521,7 @@ int loginUser(char *message, int socket)
     {
         // Check password
         MYSQL_ROW row = mysql_fetch_row(result);
-        if (strcmp(row[2], password))
+        if (strcmp(row[2], password) != 0)
         {
             sprintf(serverMess, "%d|Password is incorrect|\n", PASSWORD_INCORRECT);
             send(socket, serverMess, strlen(serverMess), 0);
@@ -531,6 +529,7 @@ int loginUser(char *message, int socket)
         }
         else
         {
+            strcpy(role, row[3]);
             // Check account is signing in other device
             char server_message[100] = "\0";
             char temp[512];
@@ -547,9 +546,10 @@ int loginUser(char *message, int socket)
                 // Push account into signing in account table
                 sprintf(query, "INSERT INTO using_accounts (username) VALUES ('%s')", username);
                 mysql_query(con, query);
-                sprintf(server_message, "%d|Successfully logged in|\n", LOGIN_SUCCESS);
-                send(socket, server_message, sizeof(server_message), 0);
-                return 1;
+
+                sprintf(server_message, "%d|%s|Successfully logged in|\n", LOGIN_SUCCESS, role);
+                send(socket, server_message,sizeof(server_message), 0);
+                return 0;
             }
             else
             {
@@ -577,7 +577,7 @@ int logoutUser(char *message, int socket)
     sprintf(query, "DELETE FROM using_accounts where username='%s'", username);
     if (mysql_query(con, query))
     {
-        sprintf(server_message, "%d|%s\n", LOGOUT_FAIL, mysql_error(con));
+        sprintf(server_message, "%d|%s\n", QUERY_FAIL, mysql_error(con));
         send(socket, server_message, strlen(server_message), 0);
         return 0;
     }
@@ -586,16 +586,6 @@ int logoutUser(char *message, int socket)
     send(socket, server_message, strlen(server_message), 0);
 
     return 1;
-}
-void encryptPassword(char *password)
-{
-    for (int i = 0; i < strlen(password); i++)
-    {
-        if ((int)password[i] > i)
-        {
-            password[i] = password[i] - i;
-        }
-    }
 }
 
 void showListPractices(char *message, int socket)

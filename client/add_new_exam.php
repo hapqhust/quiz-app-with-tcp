@@ -19,6 +19,7 @@
     <link href="assets/css/navbar.css" rel="stylesheet" />
     <link href="assets/css/add_new.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.korzh.com/metroui/v4/css/metro-all.min.css">
+
     <?php
     session_start();
 
@@ -57,7 +58,7 @@
         // connect to server
         $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
-        $msg = "07|" . $name . "|" . $topic . "|" . $num_question . "|" . $time . "|" . $start_at . "|" . $close_at . "|";
+        $msg = RequestCode::ADD_NEW_EXAM . "|" . $name . "|" . $topic . "|" . $num_question . "|" . $time . "|" . $start_at . "|" . $close_at . "|";
 
         $ret = socket_write($socket, $msg, strlen($msg));
         if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -68,19 +69,23 @@
 
         $response = explode("|", $response);
 
-        if ($response[0] == "3") {
-            echo "<script>alert('Creating a new exam is unsuccessful !');</script>";
-            echo "<script>window.location.href = 'index.php';</script>";
-
-        } else if ($response[0] == "21") {
-            echo "<script>window.location.href = 'exam.php';</script>";
+        switch ($response[0]) {
+            case ResponseCode::QUERY_FAIL:
+                echo "<script>alert('Creating a new exam is unsuccessful !');</script>";
+                echo "<script>window.location.href = 'index.php';</script>";
+                break;
+            case ResponseCode::QUESTION:
+                echo "<script>window.location.href = 'exam.php';</script>";
+                break;
         }
         socket_close($socket);
     }
     ?>
+
 </head>
 
 <body id="add_new_exam">
+
     <?php
 
     $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");

@@ -18,6 +18,9 @@
     <link href="assets/css/navbar.css" rel="stylesheet" />
     <link href="assets/css/login.css" rel="stylesheet" />
     <?php
+
+    use ProtocolCode\RequestCode;
+
     session_start();
     $host = "127.0.0.1";
     $port = 8888;
@@ -47,7 +50,7 @@
 
 
             // send username, password to server
-            $msg = "0|" . $username . "|" . $password;
+            $msg = RequestCode::LOGIN . "|" . $username . "|" . md5($password);
 
             $ret = socket_write($socket, $msg, strlen($msg));
             if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -60,8 +63,9 @@
             // split response from server
             $response = explode("|", $response);
 
-            if ($response[0] == "14") {
+            if ($response[0] == ResponseCode::LOGIN_SUCCESS) {
                 $_SESSION["username"] = $username;
+                $_SESSION['permission'] = $response[1];
                 echo "<script>alert('Login success!');</script>";
                 echo "<script>window.location.href = 'index.php';</script>";
             } else {

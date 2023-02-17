@@ -45,7 +45,7 @@
             $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
             // send username, password to server
-            $msg = "1|" . $username . "|" . $password;
+            $msg = RequestCode::REGISTER . "|" . $username . "|" . md5($password);
 
             $ret = socket_write($socket, $msg, strlen($msg));
             if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -58,8 +58,9 @@
             // split response from server
             $response = explode("|", $response);
 
-            if ($response[0] == "15") {
+            if ($response[0] == ResponseCode::REGISTER_SUCCESS) {
                 $_SESSION["username"] = $username;
+                $_SESSION['permission'] = $response[1];
                 echo "<script>alert('Register success!');</script>";
                 echo "<script>window.location.href = 'index.php';</script>";
             }else

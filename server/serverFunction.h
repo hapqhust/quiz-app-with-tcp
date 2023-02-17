@@ -16,7 +16,6 @@ int sendExamQuestion(char*, int);
 int answerQuestion(char* message, int socket);
 
 int loadGame(int);
-void encryptPassword(char*);
 void finish_with_error(MYSQL* con);
 int calculateScore(char*, int, REQUEST_CODE);
 void showDashboard(int socket);
