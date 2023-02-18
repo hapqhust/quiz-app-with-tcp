@@ -1,5 +1,5 @@
 <?php
-    class Exam
+    class Practice
     {
         // Properties
         public $id;
@@ -7,8 +7,6 @@
         public $topic;
         public $time;
         public $num_question;
-        public $time_start;
-        public $time_close;
 
         // Methods
         function set_id($id)
@@ -54,21 +52,4 @@
         {
             return $this->num_question;
         }
-        function set_time_start($time_start)
-        {
-            $this->time_start = $time_start;
-        }
-        function get_time_start()
-        {
-            return $this->time_start;
-        }
-        function set_time_close($time_close)
-        {
-            $this->time_close = $time_close;
-        }
-        function get_time_close()
-        {
-            return $this->time_close;
-        }
     }
-?>

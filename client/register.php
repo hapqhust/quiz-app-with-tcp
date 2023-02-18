@@ -17,6 +17,8 @@
     <!-- Core theme CSS (includes Bootstrap)-->
     <link href="assets/css/navbar.css" rel="stylesheet" />
     <?php
+    require_once 'ProtocolCode/RequestCode.php';
+    require_once 'ProtocolCode/ResponseCode.php';
     use ProtocolCode\RequestCode;
     use ProtocolCode\ResponseCode;
     
@@ -81,7 +83,7 @@
 </head>
 
 <body>
-    <?php include('navbar.php'); ?>
+    <?php include('navbarv2.php'); ?>
     <section class="page-section" id="register">
         <div class="container">
             <h2 class="page-section-heading text-uppercase text-secondary mt-5 mb-0 text-center">ĐĂNG KÝ TÀI KHOẢN</h2>

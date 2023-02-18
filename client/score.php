@@ -13,8 +13,7 @@
     <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     <!-- Google fonts-->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet"
-        type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
     <!-- Core theme CSS (includes Bootstrap)-->
     <link href="assets/css/navbar.css" rel="stylesheet" />
     <link href="assets/css/score.css" rel="stylesheet" />
@@ -23,14 +22,15 @@
 <body id="score">
 
     <script type="text/javascript" language="JavaScript">
-    function moveToHome() {
-        window.location = './index.php'
-    }
+        function moveToHome() {
+            window.location = './index.php'
+        }
     </script>
     <?php
     session_start();
+    $_SESSION['mode'] = "none";
     ?>
-    <?php include_once("navbar.php")?>
+    <?php include_once("navbar.php") ?>
     <section class="page-section">
         <div class="container">
             <div class=" d-flex align-items-center flex-column">
@@ -45,7 +45,7 @@
                 <div class="divider-custom-line"></div>
             </div>
             <div class="group-2">
-                <h2 class="page-section-score text-center text-uppercase text-danger mt-3">  <?php echo (string)$_SESSION["score"] . '/' . (string)$_SESSION["total_question"] ?></h2>
+                <h2 class="page-section-score text-center text-uppercase text-danger mt-3"> <?php echo (string)$_SESSION["score"] . '/' . (string)$_SESSION["total_question"] ?></h2>
                 <button class="btn btn-primary btn-xl mt-4" type="button" onclick="moveToHome()">Quay về trang
                     chủ</button>
             </div>

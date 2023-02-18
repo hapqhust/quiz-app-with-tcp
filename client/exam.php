@@ -15,25 +15,45 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
     <!-- Core theme CSS (includes Bootstrap)-->
-    <link href="assets/css/styles.css" rel="stylesheet" />
     <link href="assets/css/navbar.css" rel="stylesheet" />
     <link href="assets/css/exam.css" rel="stylesheet" />
 </head>
 
 <body id="exam-list">
-<?php
+    <?php
+    require_once 'ProtocolCode/RequestCode.php';
+    require_once 'ProtocolCode/ResponseCode.php';
+    require_once 'Entity/Exam.php';
+
+    use ProtocolCode\RequestCode;
+    use ProtocolCode\ResponseCode;
+
     session_start();
 
     if (isset($_POST['begin'])) {
-        $exam_id = $_POST['id'];
-        $_SESSION['mode'] = "exam";
-        $_SESSION['total_question'] = $_SESSION["exam_list"][$exam_id]->get_num_question();
-        $_SESSION['current_question'] = 1;
-        $_SESSION['exam_id'] = $exam_id;
-        $_SESSION['is_begin'] = true;
-        $_SESSION["score"] = 0;
-        echo "<script> alert(Bạn sẽ bắt đầu thi '$exam_id'); </script>";
-        echo "<script>window.location.href = 'question_exam.php';</script>";
+        if (!isset($_SESSION['mode']) || $_SESSION['mode'] == "none") {
+            $exam_id = $_POST['id'];
+            $_SESSION['mode'] = "exam";
+            $_SESSION['total_question'] = $_SESSION["exam_list"][$exam_id]->get_num_question();
+            $_SESSION['current_question'] = 1;
+            $_SESSION['exam_id'] = $exam_id;
+            $_SESSION['is_begin'] = true;
+            $_SESSION["score"] = 0;
+            echo "<script> alert(Bạn sẽ bắt đầu thi '$exam_id'); </script>";
+            echo "<script>window.location.href = 'question_exam.php';</script>";
+        } else {
+            if ($_SESSION['mode'] == "practice") {
+                echo "<script>
+                    alert('Bạn đang ở trong một bài luyện tập khác, hãy tiếp tục?') 
+                    window.location.href = 'question_practice.php';
+                </script>";
+            } else {
+                echo "<script>
+                    alert('Bạn đang ở trong một bài thi khác, hãy tiếp tục?') 
+                    window.location.href = 'question_exam.php';
+                </script>";
+            }
+        }
     }
     ?>
     <?php
@@ -43,7 +63,7 @@
     // connect to server
     $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
-    $msg = "4|" . "0" . "|";
+    $msg = RequestCode::SHOW_LIST_EXAM . "|" . "0" . "|";
 
     $ret = socket_write($socket, $msg, strlen($msg));
     if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -54,7 +74,7 @@
 
     $response = explode("|", $response);
 
-    if ($response[0] == "19") {
+    if ($response[0] == ResponseCode::NUM_EXAM) {
         $_SESSION['num_exam'] = $response[1];
         $_SESSION["position"] = 1;
         $_SESSION['exam_list'] = array();
@@ -63,7 +83,7 @@
         echo "<script>window.location.href = 'index.php';</script>";
     }
     while ($_SESSION['position'] <= $_SESSION['num_exam']) {
-        $msg = "4|" . $_SESSION["position"] . "|";
+        $msg = RequestCode::SHOW_LIST_EXAM . "|" . $_SESSION["position"] . "|";
 
         $ret = socket_write($socket, $msg, strlen($msg));
         if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -76,7 +96,7 @@
         // split response from server
         $response = explode("|", $response);
 
-        if ($response[0] == "20") {
+        if ($response[0] == ResponseCode::SHOW_EXAM_DETAIL) {
             $p = new Exam();
             $p->set_id($response[1]);
             $p->set_name($response[2]);
@@ -104,16 +124,19 @@
         <div class="container">
             <div class="exam-title justify-content-between my-5">
                 <h2 class="page-section-heading text-uppercase text-secondary mb-0">Danh sách các bài kiểm tra</h2>
-                <a href="./add_new_exam.php" class="btn btn-primary">Thêm mới <i class="fas fa-plus mx-1"></i> </a>
+                <?php
+                if ($_SESSION['permission'] == "admin")
+                    echo "<a href=\"./add_new_exam.php\" class=\"btn btn-primary\">Thêm mới <i class=\"fas fa-plus mx-1\"></i></a>"
+                ?>
             </div>
             <div class="row justify-content-start">
                 <?php
                 if (isset($_SESSION['num_exam']))
-                $total = $_SESSION['num_exam'];
-            else
-                $total = 0;
-            for ($i = 1; $i <= $total; $i++) {
-                    echo ("<div class=\"col-md-6 col-lg-3 mb-5 text-center \">
+                    $total = $_SESSION['num_exam'];
+                else
+                    $total = 0;
+                for ($i = 1; $i <= $total; $i++) {
+                    echo "<div class=\"col-md-6 col-lg-3 mb-5 text-center \">
                                 <div class=\"card\">
                                     <div class=\"image\">
                                         <img class=\"img-fluid-exam\" src=\"assets/img/exam/exam.jpg\" alt=\"...\" />
@@ -126,12 +149,25 @@
                                         <p class=\"card-text mb-2\"> Thời gian bắt đầu: " . $_SESSION['exam_list'][$i]->get_time_start() . "</p>
                                         <p class=\"card-text mb-2\"> Thời gian kết thúc: " . $_SESSION['exam_list'][$i]->get_time_close() . "</p>
                                         <form id=\"startForm\" action=\"exam.php\"  method=\"POST\">
-                                            <input type=\"hidden\" name=\"id\" value=\"" . $_SESSION['exam_list'][$i]->get_id() . "\"/>
-                                            <input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary\" name=\"begin\" value =\"Bắt đầu làm bài\">
-                                        </form>
+                                            <input type=\"hidden\" name=\"id\" value=\"" . $_SESSION['exam_list'][$i]->get_id() . "\"/>";
+
+                    $ends = DateTime::createFromFormat('d/m/Y-H:i:s', trim($_SESSION['exam_list'][$i]->get_time_close()));
+                    $start = DateTime::createFromFormat('d/m/Y-H:i:s', trim($_SESSION['exam_list'][$i]->get_time_start()));
+                    // var_dump($start);
+                    // var_dump($_SESSION['exam_list'][$i]->get_time_start());
+                    $now = new DateTime();
+                    if ($start->getTimestamp() <= $now->getTimestamp() && $now->getTimestamp() <= $ends->getTimestamp()) {
+                        echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary\" name=\"begin\" value =\"Bắt đầu làm bài\">";
+                    } elseif ($now->getTimestamp() < $start->getTimestamp()) {
+                        echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary\" name=\"begin\" value =\"Bắt đầu làm bài\" disabled>";
+                    } else {
+                        echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary\" name=\"view-result\" value =\"Xem kết quả\">";
+                    }
+
+                    echo "</form>
                                     </div>
                                 </div>
-                            </div>");
+                            </div>";
                 }
                 ?>
             </div>

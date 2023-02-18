@@ -22,99 +22,37 @@
 
 <body id="practice-list">
     <?php
+    require_once 'ProtocolCode/RequestCode.php';
+    require_once 'ProtocolCode/ResponseCode.php';
+    require_once 'Entity/Practice.php';
+
+    use ProtocolCode\RequestCode;
+    use ProtocolCode\ResponseCode;
+
     session_start();
 
     if (isset($_POST['begin'])) {
-        $practice_id = $_POST['id'];
-        $_SESSION['mode'] = "practice";
-        $_SESSION['total_question'] = $_SESSION["practice_list"][$practice_id]->get_num_question();
-        $_SESSION['current_question'] = 1;
-        $_SESSION['practice_id'] = $practice_id;
-        $_SESSION['is_begin'] = true;
-        $_SESSION["score"] = 0;
-        echo "<script> alert(Bạn sẽ bắt đầu vs bài luyện tập số '$practice_id'); </script>";
-        echo "<script>window.location.href = 'question.php';</script>";
-
-
-        // $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
-
-        // // connect to server
-        // $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
-
-        // $msg = "06|" . $name . "|" . $topic . "|" . $num_question . "|" . $time . "|" . $created_at . "|";
-
-        // $ret = socket_write($socket, $msg, strlen($msg));
-        // if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
-
-        // // receive response from server
-        // $response = socket_read($socket, 1024);
-        // if (!$response) die("client read fail:" . socket_strerror(socket_last_error()) . "\n");
-
-        // $response = explode("|", $response);
-
-        // if ($response[0] == "3") {
-        //     echo "<script>alert('Creating a new practice is unsuccessful !');</script>";
-        //     echo "<script>window.location.href = 'index.php';</script>";
-
-        // } else if ($response[0] == "5") {
-        //     echo "<script>window.location.href = 'practice.php';</script>";
-        // }
-        // socket_close($socket);
-    }
-    ?>
-    <?php
-    class Practice
-    {
-        // Properties
-        public $id;
-        public $name;
-        public $topic;
-        public $time;
-        public $num_question;
-
-        // Methods
-        function set_id($id)
-        {
-            $this->id = $id;
-        }
-        function get_id()
-        {
-            return $this->id;
-        }
-
-        function set_name($name)
-        {
-            $this->name = $name;
-        }
-        function get_name()
-        {
-            return $this->name;
-        }
-        function set_topic($topic)
-        {
-            $this->topic = $topic;
-        }
-        function get_topic()
-        {
-            return $this->topic;
-        }
-
-        function set_time($time)
-        {
-            $this->time = $time;
-        }
-        function get_time()
-        {
-            return $this->time;
-        }
-
-        function set_num_question($num_question)
-        {
-            $this->num_question = $num_question;
-        }
-        function get_num_question()
-        {
-            return $this->num_question;
+        if (!isset($_SESSION['mode']) || $_SESSION['mode'] == "none") {
+            $practice_id = $_POST['id'];
+            $_SESSION['mode'] = "practice";
+            $_SESSION['total_question'] = $_SESSION["practice_list"][$practice_id]->get_num_question();
+            $_SESSION['current_question'] = 1;
+            $_SESSION['practice_id'] = $practice_id;
+            $_SESSION['is_begin'] = true;
+            $_SESSION["score"] = 0;
+            echo "<script>window.location.href = 'question_practice.php';</script>";
+        } else {
+            if ($_SESSION['mode'] == "practice") {
+                echo "<script>
+                    alert('Bạn đang ở trong một bài luyện tập khác, hãy tiếp tục?') 
+                    window.location.href = 'question_practice.php';
+                </script>";
+            } else {
+                echo "<script>
+                    alert('Bạn đang ở trong một bài thi khác, hãy tiếp tục?') 
+                    window.location.href = 'question_exam.php';
+                </script>";
+            }
         }
     }
     ?>
@@ -125,7 +63,7 @@
     // connect to server
     $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
-    $msg = "3|" . "0" . "|";
+    $msg = RequestCode::SHOW_LIST_PRACTICE . "|" . "0" . "|";
 
     $ret = socket_write($socket, $msg, strlen($msg));
     if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -136,7 +74,7 @@
 
     $response = explode("|", $response);
 
-    if ($response[0] == "1") {
+    if ($response[0] == ResponseCode::NUM_PRACTICE) {
         $_SESSION['num_practice'] = $response[1];
         $_SESSION["position"] = 1;
         $_SESSION['practice_list'] = array();
@@ -145,7 +83,7 @@
         echo "<script>window.location.href = 'index.php';</script>";
     }
     while ($_SESSION['position'] <= $_SESSION['num_practice']) {
-        $msg = "3|" . $_SESSION["position"] . "|";
+        $msg = RequestCode::SHOW_LIST_PRACTICE . "|" . $_SESSION["position"] . "|";
 
         $ret = socket_write($socket, $msg, strlen($msg));
         if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -158,7 +96,7 @@
         // split response from server
         $response = explode("|", $response);
 
-        if ($response[0] == "2") {
+        if ($response[0] == ResponseCode::SHOW_PRACTICE_DETAIL) {
             $p = new Practice();
             $p->set_id($response[1]);
             $p->set_name($response[2]);
@@ -184,8 +122,10 @@
         <div class="container">
             <div class="practice-title justify-content-between my-5">
                 <h2 class="page-section-heading text-uppercase text-secondary mb-0">Danh sách các bài luyện tập</h2>
-                <a href="./add_new_practice.php" class="btn btn-primary">Thêm mới <i class="fas fa-plus mx-1"></i>
-                </a>
+                <?php
+                if ($_SESSION['permission'] == "admin")
+                    echo "<a href=\"./add_new_practice.php\" class=\"btn btn-primary\">Thêm mới <i class=\"fas fa-plus mx-1\"></i></a>"
+                ?>
             </div>
             <div class="row justify-content-start">
                 <?php

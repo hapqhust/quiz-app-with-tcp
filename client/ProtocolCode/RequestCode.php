@@ -2,7 +2,7 @@
 
 namespace ProtocolCode;
 
-class RequestCode {
+abstract class RequestCode{
     const LOGIN = "0";
     const REGISTER = "1";
     const LOGOUT = "2";

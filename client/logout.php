@@ -1,39 +1,41 @@
 <?php
-    use ProtocolCode\ResponseCode;
-    use ProtocolCode\RequestCode;
+require_once 'ProtocolCode/RequestCode.php';
+require_once 'ProtocolCode/ResponseCode.php';
 
-    session_start();
-    if (isset($_POST['logout'])) {
+use ProtocolCode\ResponseCode;
+use ProtocolCode\RequestCode;
 
-            // create socket
-            $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
+session_start();
+if (isset($_POST['logout'])) {
 
-            // connect to server
-            $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
+    // create socket
+    $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
 
-            //
-            $msg = RequestCode::LOGOUT . "|" . $_SESSION["username"] . "|";
+    // connect to server
+    $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
-            $ret = socket_write($socket, $msg, strlen($msg));
-            if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
+    //
+    $msg = RequestCode::LOGOUT . "|" . $_SESSION["username"] . "|";
 
-            // receive response from server
-            $response = socket_read($socket, 1024);
-            if (!$response) die("client read fail:" . socket_strerror(socket_last_error()) . "\n");
-            echo $response;
+    $ret = socket_write($socket, $msg, strlen($msg));
+    if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
 
-            // split response from server
-            $response = explode("|", $response);
-            if ($response[0] == ResponseCode::LOGOUT_SUCCESS) {
-                session_destroy();
-                echo "<script>alert('Are you sure logout ?');</script>";
-                echo "<script>window.location.href = 'login.php';</script>";
+    // receive response from server
+    $response = socket_read($socket, 1024);
+    if (!$response) die("client read fail:" . socket_strerror(socket_last_error()) . "\n");
+    echo $response;
 
-            } else {
-                echo "<script>alert('fail!');</script>";
-                echo "<script>window.location.href = 'index.php';</script>";
-            }
+    // split response from server
+    $response = explode("|", $response);
+    if ($response[0] == ResponseCode::LOGOUT_SUCCESS) {
+        session_destroy();
+        echo "<script>alert('Are you sure logout ?');</script>";
+        echo "<script>window.location.href = 'login.php';</script>";
+    } else {
+        echo "<script>alert('fail!');</script>";
+        echo "<script>window.location.href = 'index.php';</script>";
+    }
 
-            // close socket
-            socket_close($socket);
-        }
+    // close socket
+    socket_close($socket);
+}

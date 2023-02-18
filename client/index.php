@@ -29,7 +29,6 @@
 
     if (!$_SESSION["username"]) {
         header("Location: login.php");
-        
     }
     ?>
     <script type="text/javascript" language="JavaScript">

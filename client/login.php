@@ -18,7 +18,12 @@
     <link href="assets/css/navbar.css" rel="stylesheet" />
     <link href="assets/css/login.css" rel="stylesheet" />
     <?php
+    require_once 'ProtocolCode/RequestCode.php';
+    require_once 'ProtocolCode/ResponseCode.php';
+
+    use ProtocolCode\ResponseCode;
     use ProtocolCode\RequestCode;
+
 
     session_start();
     $host = "127.0.0.1";
@@ -80,7 +85,7 @@
 </head>
 
 <body>
-    <?php include('navbar.php'); ?>
+    <?php include('navbarv2.php'); ?>
     <section class="page-section" id="login">
         <div class="container">
             <h2 class="page-section-heading text-uppercase text-secondary mt-5 mb-0 text-center">ĐĂNG NHẬP</h2>

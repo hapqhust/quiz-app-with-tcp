@@ -22,6 +22,11 @@
 <body id="question">
 
     <?php
+    require_once 'ProtocolCode/RequestCode.php';
+    require_once 'ProtocolCode/ResponseCode.php';
+
+    use ProtocolCode\ResponseCode;
+    use ProtocolCode\RequestCode;
     session_start();
     // if ((time() - $_SESSION['in_game_timestamp']) > 180) {
     //     echo "<script>alert('Time out');</script>";
@@ -37,7 +42,7 @@
         // connect to server
         $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
-        $msg = "9|" . $_SESSION['exam_id'] . "|"  . "0|";
+        $msg = RequestCode::JOIN_EXAM . "|" . $_SESSION['exam_id'] . "|"  . "0|";
 
         $ret = socket_write($socket, $msg, strlen($msg));
         if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -50,7 +55,7 @@
         // split response from server
         $response = explode("|", $response);
 
-        if ($response[0] == "6") {
+        if ($response[0] == ResponseCode::LIST_QUESTION_ID) {
             $sum = $response[1];
             $_SESSION["list_question_id"] = array();
             for ($x = 1; $x <= $sum; $x++) {
@@ -74,7 +79,7 @@
         $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
         $answer = $_POST['answer'];
-        $msg = "11|" . $_SESSION["question_id"] . "|" . $answer . "|";
+        $msg = RequestCode::ANSWER . "|" . $_SESSION["question_id"] . "|" . $answer . "|";
 
         $ret = socket_write($socket, $msg, strlen($msg));
         if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -87,9 +92,15 @@
         // split response from server
         $response = explode("|", $response);
 
-        if ($response[0] == "8") {
+        if ($response[0] == ResponseCode::ANSWER_CORRECT) {
             $_SESSION["score"] += 1;
+        } elseif ($response[0] == ResponseCode::ANSWER_INCORRECT) {
+            $_SESSION["score"] += 0;
+        } else {
+            echo "<script>alert('Loading fail');</script>";
+            echo "<script>window.location.href = 'index.php';</script>";
         }
+
         $_SESSION["current_question"] = $_SESSION["current_question"] + 1;
         if ($_SESSION["current_question"] > $_SESSION["total_question"]) {
             echo "<script>window.location.href = 'score.php';</script>";
@@ -98,14 +109,18 @@
         socket_close($socket);
     }
     ?>
-    <?php
-    if (isset($_SESSION['mode']) && $_SESSION['mode'] == "exam" && $_SESSION["current_question"] <= $_SESSION["total_question"]) {
+
+<?php
+    if (isset($_POST['submit'])) {
+        unset($_POST['submit']);
+
         $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
 
         // connect to server
         $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
-        $msg = "9|" . $_SESSION['exam_id'] . "|" . $_SESSION['list_question_id'][$_SESSION['current_question']] . "|";
+        $answer = $_POST['answer'];
+        $msg = RequestCode::ANSWER . "|" . $_SESSION["question_id"] . "|" . $answer . "|";
 
         $ret = socket_write($socket, $msg, strlen($msg));
         if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -118,7 +133,42 @@
         // split response from server
         $response = explode("|", $response);
 
-        if ($response[0] == "7") {
+        if ($response[0] == ResponseCode::ANSWER_CORRECT) {
+            $_SESSION["score"] += 1;
+        } elseif ($response[0] == ResponseCode::ANSWER_INCORRECT) {
+            $_SESSION["score"] += 0;
+        } 
+        echo "<script>
+            if (confirm('Bạn có chắc chắn muốn nộp bài?')) {
+                window.location.href = 'score.php'
+            }
+          </script>";
+          
+        socket_close($socket);
+    }
+    ?>
+
+    <?php
+    if (isset($_SESSION['mode']) && $_SESSION['mode'] == "exam" && $_SESSION["current_question"] <= $_SESSION["total_question"]) {
+        $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
+
+        // connect to server
+        $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
+
+        $msg = RequestCode::JOIN_EXAM . "|" . $_SESSION['exam_id'] . "|" . $_SESSION['list_question_id'][$_SESSION['current_question']] . "|";
+
+        $ret = socket_write($socket, $msg, strlen($msg));
+        if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
+
+        // receive response from server
+        $response = socket_read($socket, 1024);
+        if (!$response) die("client read fail:" . socket_strerror(socket_last_error()) . "\n");
+        //echo $response;
+
+        // split response from server
+        $response = explode("|", $response);
+
+        if ($response[0] == ResponseCode::QUESTION) {
             $_SESSION["question_id"] = $response[1];
             $_SESSION["question"] = $response[2];
             $_SESSION["answerA"] = $response[3];
@@ -173,7 +223,11 @@
                         <!-- Submit Button-->
                         <div class="row justify-content-center">
                             <input class="col-3 button btn btn-primary btn-lg mt-5 mx-3" id="submitButton" type="submit" name="submit" value="Nộp bài"></input>
-                            <input class="col-3 button btn btn-secondary2 btn-lg mt-5 mx-3" id="submitButton" type="submit" name="next" value="Tiếp tục" onclick="myFunction()"> </input>
+                            <?php
+                                if ($_SESSION["current_question"] < $_SESSION["total_question"]){
+                                    echo "<input class=\"col-3 button btn btn-secondary2 btn-lg mt-5 mx-3\" id=\"submitButton\" type=\"submit\" name=\"next\" value=\"Tiếp tục\" onclick=\"myFunction()\"> </input>";
+                                }
+                            ?>
                         </div>
                     </form>
                 </div>
