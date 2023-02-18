@@ -27,6 +27,7 @@
 
     use ProtocolCode\ResponseCode;
     use ProtocolCode\RequestCode;
+
     session_start();
     // if ((time() - $_SESSION['in_game_timestamp']) > 180) {
     //     echo "<script>alert('Time out');</script>";
@@ -110,7 +111,7 @@
     }
     ?>
 
-<?php
+    <?php
     if (isset($_POST['submit'])) {
         unset($_POST['submit']);
 
@@ -137,13 +138,34 @@
             $_SESSION["score"] += 1;
         } elseif ($response[0] == ResponseCode::ANSWER_INCORRECT) {
             $_SESSION["score"] += 0;
-        } 
-        echo "<script>
-            if (confirm('Bạn có chắc chắn muốn nộp bài?')) {
+        }
+
+        if ($_SESSION['permission'] == 'admin') {
+            echo "<script>
+                alert('Bạn đã nộp bài thành công');
                 window.location.href = 'score.php'
+            </script>";
+        } else {
+            $msg = RequestCode::SAVE_RESULT . "|" . $_SESSION["username"] . "|" . $_SESSION['exam_id'] . "|" . $_SESSION['score'] . "|";
+
+            $ret = socket_write($socket, $msg, strlen($msg));
+            if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
+
+            // receive response from server
+            $response = socket_read($socket, 1024);
+            if (!$response) die("client read fail:" . socket_strerror(socket_last_error()) . "\n");
+
+            $response = explode("|", $response);
+            $_SESSION['mode'] = "none";
+            if ($response[0] == ResponseCode::SAVE_RESULT_SUCCESSFUL) {
+                echo "<script>alert('Bạn đã hoàn thành bài thi! Xem kết quả sau khi bài thi kết thúc');</script>";
+                echo "<script>window.location.href = 'index.php';</script>";
+            } else {
+                echo "<script>alert('Loading fail');</script>";
+                echo "<script>window.location.href = 'index.php';</script>";
             }
-          </script>";
-          
+        }
+
         socket_close($socket);
     }
     ?>
@@ -224,9 +246,9 @@
                         <div class="row justify-content-center">
                             <input class="col-3 button btn btn-primary btn-lg mt-5 mx-3" id="submitButton" type="submit" name="submit" value="Nộp bài"></input>
                             <?php
-                                if ($_SESSION["current_question"] < $_SESSION["total_question"]){
-                                    echo "<input class=\"col-3 button btn btn-secondary2 btn-lg mt-5 mx-3\" id=\"submitButton\" type=\"submit\" name=\"next\" value=\"Tiếp tục\" onclick=\"myFunction()\"> </input>";
-                                }
+                            if ($_SESSION["current_question"] < $_SESSION["total_question"]) {
+                                echo "<input class=\"col-3 button btn btn-secondary2 btn-lg mt-5 mx-3\" id=\"submitButton\" type=\"submit\" name=\"next\" value=\"Tiếp tục\" onclick=\"myFunction()\"> </input>";
+                            }
                             ?>
                         </div>
                     </form>

@@ -13,11 +13,11 @@ abstract class RequestCode{
     const ADD_NEW_EXAM  = "7";
     const JOIN_PRACTICE = "8";
     const JOIN_EXAM = "9";
-    const QUESTION_REQUEST = "10";
+    const SAVE_RESULT = "10";
     const ANSWER = "11";
-    const DASHBOARD = "12";
+    const CHECK_JOINED_EXAM = "12";
+    const DASHBOARD = "13";
     const STOP = "13";
-    const BREAK = "14";
 }
 
 ?>

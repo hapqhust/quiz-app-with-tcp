@@ -31,6 +31,11 @@ class ResponseCode {
 
     const ANSWER_CORRECT = "18";
     const ANSWER_INCORRECT = "19";
+
+    const SAVE_RESULT_SUCCESSFUL = "20";
+
+    const PARTICIPATED = "21";
+    const NOT_PARTICIPATED = "22";
 }
 
 ?>

@@ -31,7 +31,28 @@
     session_start();
 
     if (isset($_POST['begin'])) {
-        if (!isset($_SESSION['mode']) || $_SESSION['mode'] == "none") {
+
+        $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
+        // connect to server
+        $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
+
+        $msg = RequestCode::CHECK_JOINED_EXAM . "|" . $_SESSION["username"] . "|" . $_POST['id'] . "|" . $_SESSION['permission'] . "|";
+
+        $ret = socket_write($socket, $msg, strlen($msg));
+        if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
+
+        // receive response from server
+        $response = socket_read($socket, 1024);
+        if (!$response) die("client read fail:" . socket_strerror(socket_last_error()) . "\n");
+
+        $response = explode("|", $response);
+
+        if($response[0] == ResponseCode::QUERY_FAIL) {
+            echo "<script>alert('Loading fail');</script>";
+            echo "<script>window.location.href = 'index.php';</script>";
+        }
+
+        if ($response[0] == ResponseCode::NOT_PARTICIPATED && (!isset($_SESSION['mode']) || $_SESSION['mode'] == "none")) {
             $exam_id = $_POST['id'];
             $_SESSION['mode'] = "exam";
             $_SESSION['total_question'] = $_SESSION["exam_list"][$exam_id]->get_num_question();
@@ -42,7 +63,12 @@
             echo "<script> alert(Bạn sẽ bắt đầu thi '$exam_id'); </script>";
             echo "<script>window.location.href = 'question_exam.php';</script>";
         } else {
-            if ($_SESSION['mode'] == "practice") {
+            if($response[0] == ResponseCode::PARTICIPATED){
+                echo "<script>
+                    alert('Bạn chỉ có thể thi một lần. Hãy chọn một bài thi mới.'); 
+                </script>";
+            }
+            elseif ($_SESSION['mode'] == "practice") {
                 echo "<script>
                     alert('Bạn đang ở trong một bài luyện tập khác, hãy tiếp tục?') 
                     window.location.href = 'question_practice.php';
@@ -156,12 +182,13 @@
                     // var_dump($start);
                     // var_dump($_SESSION['exam_list'][$i]->get_time_start());
                     $now = new DateTime();
-                    if ($start->getTimestamp() <= $now->getTimestamp() && $now->getTimestamp() <= $ends->getTimestamp()) {
-                        echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary\" name=\"begin\" value =\"Bắt đầu làm bài\">";
-                    } elseif ($now->getTimestamp() < $start->getTimestamp()) {
-                        echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary\" name=\"begin\" value =\"Bắt đầu làm bài\" disabled>";
+                    if ($now->getTimestamp() > $ends->getTimestamp()) {
+                        echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary mx-1 mt-2\" name=\"view-result\" value =\"Kết quả\">";
+                        echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary mx-1 mt-2\" name=\"view-rank\" value =\"Bảng xếp hạng\">";
+                    } elseif (($now->getTimestamp() >= $start->getTimestamp() && $now->getTimestamp() <= $ends->getTimestamp()) ||  $_SESSION['permission'] == "admin") {
+                        echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary mt-2\" name=\"begin\" value =\"Bắt đầu làm bài\">";
                     } else {
-                        echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary\" name=\"view-result\" value =\"Xem kết quả\">";
+                        echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary mt-2\" name=\"begin\" value =\"Bắt đầu làm bài\" disabled>";
                     }
 
                     echo "</form>

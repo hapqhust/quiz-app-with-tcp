@@ -137,9 +137,8 @@
         }
         
         echo "<script>
-        if (confirm('Bạn có chắc chắn muốn nộp bài?')) {
+            alert('Bạn đã nộp bài thành công');
             window.location.href = 'score.php'
-        }
         </script>";
         
         socket_close($socket);
