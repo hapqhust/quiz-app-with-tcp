@@ -18,7 +18,6 @@
     <link href="assets/css/navbar.css" rel="stylesheet" />
     <link href="assets/css/login.css" rel="stylesheet" />
     <?php
-
     use ProtocolCode\RequestCode;
 
     session_start();
