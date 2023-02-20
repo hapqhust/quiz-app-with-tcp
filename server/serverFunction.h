@@ -20,5 +20,5 @@ void saveResult(char *message, int socket);
 void checkJoinExam(char *message, int socket);
 
 int calculateScore(char*, int, REQUEST_CODE);
-void showDashboard(int socket);
+void showDashboard(char *message, int socket);
 #endif  // _SERVER_FUNC_H

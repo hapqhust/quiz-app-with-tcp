@@ -102,7 +102,7 @@ void handle_message(char *message, int socket)
     case DASHBOARD:
     {
         printf("Handle dashboard\n");
-        showDashboard(socket);
+        showDashboard(message, socket);
         break;
     }
     case STOP:
@@ -960,35 +960,67 @@ void checkJoinExam(char *message, int socket)
     }
 }
 
-void showDashboard(int socket)
+void showDashboard(char *message, int socket)
 {
-    char query[BUFF_SIZE] = "\0";
+    int position, exam_id;
+    char list_result_id[BUFF_SIZE] = "\0";
     char serverMess[BUFF_SIZE] = "\0";
-    char temp[100] = "\0";
-    sprintf(query, "SELECT username, highScore from users ORDER BY highScore DESC");
-    //    printf("%s\n", query);
-    if (mysql_query(con, query))
+    char query[200] = "\0";
+    char *token;
+    int count;
+
+    // Get position
+    printf("%s\n", message);
+    token = strtok(message, "|");
+    token = strtok(NULL, "|");
+    position = atoi(token);
+    token = strtok(NULL, "|");
+    exam_id =  atoi(token);
+    printf("Position %d\n", position);
+    // Get position to choose appropriate question
+    if (position == 0)
     {
-        sprintf(serverMess, "%d|%s\n", QUERY_FAIL, mysql_error(con));
-        send(socket, serverMess, strlen(serverMess), 0);
-    }
-    MYSQL_RES *result = mysql_store_result(con);
-    if (mysql_num_rows(result) == 0)
-    {
-        sprintf(serverMess, "%d|Cannot show dashboard\n", QUERY_FAIL);
-        send(socket, serverMess, strlen(serverMess), 0);
+        sprintf(query, "SELECT * FROM exam_results WHERE exam_id = %d ORDER BY score DESC", exam_id);
+        printf("%s\n", query);
+        if (mysql_query(con, query))
+        {
+            sprintf(serverMess, "%d|%s\n", QUERY_FAIL, mysql_error(con));
+            send(socket, serverMess, strlen(serverMess), 0);
+            return;
+        }
+        MYSQL_RES *result = mysql_store_result(con);
+        sprintf(serverMess, "%d|%lld", DASHBOARD_NUM_ROW, mysql_num_rows(result));
+
+        count = mysql_num_rows(result);
+            MYSQL_ROW row;
+            while ((row = mysql_fetch_row(result)) != NULL)
+            {
+                strcat(list_result_id, row[0]);
+                strcat(list_result_id, "|");
+            }
+            sprintf(serverMess, "%s|%s", serverMess, list_result_id);
     }
     else
     {
-        MYSQL_ROW row;
-        while (row = mysql_fetch_row(result))
+        sprintf(query, "SELECT * FROM exam_results WHERE id = %d", position);
+        printf("%s\n", query);
+        if (mysql_query(con, query))
         {
-            sprintf(temp, "%d|%s|%s|", DASHBOARD_INFO, row[0], row[1]);
-            strcat(serverMess, temp);
+            sprintf(serverMess, "%d|%s\n", QUERY_FAIL, mysql_error(con));
+            send(socket, serverMess, strlen(serverMess), 0);
+            return;
         }
-        printf("%s\n", serverMess);
+        MYSQL_RES *result = mysql_store_result(con);
+        MYSQL_ROW row;
+        if ((row = mysql_fetch_row(result)) != NULL)
+        {
+            sprintf(serverMess, "%d|%s|%d|\n", DASHBOARD_INFO, row[1], atoi(row[3]));
+            // sprintf(serverMess, "%s", list_topic);
+        }
     }
+    printf("thông điệp là: %s\n", serverMess);
     send(socket, serverMess, strlen(serverMess), 0);
+    return;
 }
 
 // int calculateScore(char *message, int socket, REQUEST_CODE code)

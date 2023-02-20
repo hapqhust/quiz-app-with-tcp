@@ -2,11 +2,11 @@
     class Practice
     {
         // Properties
-        public $id;
-        public $name;
-        public $topic;
-        public $time;
-        public $num_question;
+        private $id;
+        private $name;
+        private $topic;
+        private $time;
+        private $num_question;
 
         // Methods
         function set_id($id)

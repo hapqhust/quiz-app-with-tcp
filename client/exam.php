@@ -80,6 +80,11 @@
                 </script>";
             }
         }
+    }elseif(isset($_POST['view-rank'])){
+        $exam_id = $_POST['id'];
+        $_SESSION['view_exam'] = $exam_id;
+        $_SESSION['total_question'] = $_SESSION["exam_list"][$exam_id]->get_num_question();
+        echo "<script>window.location.href = 'dashboard.php';</script>";
     }
     ?>
     <?php
@@ -183,7 +188,7 @@
                     // var_dump($_SESSION['exam_list'][$i]->get_time_start());
                     $now = new DateTime();
                     if ($now->getTimestamp() > $ends->getTimestamp()) {
-                        echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary mx-1 mt-2\" name=\"view-result\" value =\"Kết quả\">";
+                        // echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary mx-1 mt-2\" name=\"view-result\" value =\"Kết quả\">";
                         echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary mx-1 mt-2\" name=\"view-rank\" value =\"Bảng xếp hạng\">";
                     } elseif (($now->getTimestamp() >= $start->getTimestamp() && $now->getTimestamp() <= $ends->getTimestamp()) ||  $_SESSION['permission'] == "admin") {
                         echo "<input type=\"submit\" id=\"" . $_SESSION['exam_list'][$i]->get_id() . "\" class=\"btn btn-primary mt-2\" name=\"begin\" value =\"Bắt đầu làm bài\">";

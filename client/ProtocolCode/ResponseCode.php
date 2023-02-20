@@ -36,6 +36,9 @@ class ResponseCode {
 
     const PARTICIPATED = "21";
     const NOT_PARTICIPATED = "22";
+
+    const DASHBOARD_NUM_ROW = "23";
+    const DASHBOARD_INFO = "24";
 }
 
 ?>

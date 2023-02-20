@@ -24,18 +24,12 @@
     <?php
     require_once 'ProtocolCode/RequestCode.php';
     require_once 'ProtocolCode/ResponseCode.php';
+    require_once 'Entity/Exam.php';
 
     use ProtocolCode\ResponseCode;
     use ProtocolCode\RequestCode;
 
     session_start();
-    // if ((time() - $_SESSION['in_game_timestamp']) > 180) {
-    //     echo "<script>alert('Time out');</script>";
-    //     unset($_SESSION["in_game_timestamp"]);
-    //     header("location:home.php");
-    // } else {
-    //     $_SESSION["in_game_timestamp"] = time();
-    // }
     if (isset($_SESSION['mode']) && $_SESSION['mode'] == "exam" && $_SESSION['is_begin']) {
 
         $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
@@ -79,7 +73,11 @@
         // connect to server
         $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
-        $answer = $_POST['answer'];
+        if (isset($_POST['answer'])) {
+            $answer = $_POST['answer'];
+        } else {
+            $answer = 5;
+        }
         $msg = RequestCode::ANSWER . "|" . $_SESSION["question_id"] . "|" . $answer . "|";
 
         $ret = socket_write($socket, $msg, strlen($msg));
@@ -114,13 +112,16 @@
     <?php
     if (isset($_POST['submit'])) {
         unset($_POST['submit']);
-
+        echo "<script>sessionStorage.removeItem('end');</script>";
         $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
 
         // connect to server
         $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
-
-        $answer = $_POST['answer'];
+        if (isset($_POST['answer'])) {
+            $answer = $_POST['answer'];
+        } else {
+            $answer = 5;
+        }
         $msg = RequestCode::ANSWER . "|" . $_SESSION["question_id"] . "|" . $answer . "|";
 
         $ret = socket_write($socket, $msg, strlen($msg));
@@ -138,33 +139,15 @@
             $_SESSION["score"] += 1;
         } elseif ($response[0] == ResponseCode::ANSWER_INCORRECT) {
             $_SESSION["score"] += 0;
+        } else {
+            echo "<script>alert('Loading fail');</script>";
+            echo "<script>window.location.href = 'index.php';</script>";
         }
 
-        if ($_SESSION['permission'] == 'admin') {
-            echo "<script>
+        echo "<script>
                 alert('Bạn đã nộp bài thành công');
                 window.location.href = 'score.php'
             </script>";
-        } else {
-            $msg = RequestCode::SAVE_RESULT . "|" . $_SESSION["username"] . "|" . $_SESSION['exam_id'] . "|" . $_SESSION['score'] . "|";
-
-            $ret = socket_write($socket, $msg, strlen($msg));
-            if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
-
-            // receive response from server
-            $response = socket_read($socket, 1024);
-            if (!$response) die("client read fail:" . socket_strerror(socket_last_error()) . "\n");
-
-            $response = explode("|", $response);
-            $_SESSION['mode'] = "none";
-            if ($response[0] == ResponseCode::SAVE_RESULT_SUCCESSFUL) {
-                echo "<script>alert('Bạn đã hoàn thành bài thi! Xem kết quả sau khi bài thi kết thúc');</script>";
-                echo "<script>window.location.href = 'index.php';</script>";
-            } else {
-                echo "<script>alert('Loading fail');</script>";
-                echo "<script>window.location.href = 'index.php';</script>";
-            }
-        }
 
         socket_close($socket);
     }
@@ -211,6 +194,10 @@
             <h4 class="page-section-heading text-end text-uppercase text-secondary mt-4 mb-" 2>Câu:
                 <?php echo (string)$_SESSION["current_question"] . '/' . (string)$_SESSION["total_question"] ?></h4>
             <!-- Contact Section Form-->
+            <div class="row">
+                <h5 class="time-left" style="margin-top:-36px; font-size: 1.2rem;">Thời gian còn lại:</h5>
+                <h6 id="countdown" class="time-left" style="font-size: 1.4rem;"></h6>
+            </div>
 
             <h5 class="page-section-question text-center text-secondary mt-4 mb-5">
                 <?php echo $_SESSION["question"] ?></h5>
@@ -256,6 +243,45 @@
             </div>
         </div>
     </section>
+    <script>
+        // Set the target date and time (in this example, it's set to February 28, 2023 at 10:00 AM)
+        if (sessionStorage.getItem("end") === null) {
+            var target_date = new Date();
+            var now = new Date();
+            var time = <?php echo $_SESSION["exam_list"][$_SESSION['exam_id']]->get_time() ?>;
+            target_date.setTime(now.getTime() + time * 60 * 1000);
+            sessionStorage.setItem('end', target_date);
+        }
+        // Update the countdown every second
+        var countdown = setInterval(function() {
+            // Get the current date and time
+            var current_date = new Date();
+
+            // Calculate the remaining time in seconds
+            var remaining_seconds = Math.floor((Date.parse(sessionStorage.getItem("end")) - current_date) / 1000);
+
+            if (remaining_seconds <= 0) {
+                // Clear the interval to stop the countdown
+                clearInterval(countdown);
+                sessionStorage.removeItem("end");
+                alert("Hết thời gian làm bài!");
+                window.location.href = 'score.php';
+
+                // Execute some code when the countdown reaches 0
+                // alert("Countdown timer has reached 0!");
+            } else {
+                // Convert the remaining time to days, hours, minutes, and seconds
+                var hours = Math.floor((remaining_seconds) / (60 * 60));
+                var minutes = Math.floor((remaining_seconds - (hours * 60 * 60)) / 60);
+                var seconds = Math.floor(remaining_seconds - (hours * 60 * 60) - (minutes * 60));
+
+                // Display the remaining time in the HTML element with id="countdown"
+                document.getElementById("countdown").innerHTML = "" + hours + " : " + minutes + " : " + seconds;
+            }
+        }, 1000);
+    </script>
+
+
 </body>
 
 </html>

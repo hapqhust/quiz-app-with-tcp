@@ -17,7 +17,7 @@ abstract class RequestCode{
     const ANSWER = "11";
     const CHECK_JOINED_EXAM = "12";
     const DASHBOARD = "13";
-    const STOP = "13";
+    // const STOP = "13";
 }
 
 ?>

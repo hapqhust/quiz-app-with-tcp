@@ -27,7 +27,36 @@
         }
     </script>
     <?php
+    require_once 'ProtocolCode/RequestCode.php';
+    require_once 'ProtocolCode/ResponseCode.php';
+
+    use ProtocolCode\ResponseCode;
+    use ProtocolCode\RequestCode;
+
     session_start();
+
+
+    if ($_SESSION['permission'] == 'user' && $_SESSION['mode'] == 'exam') {
+
+        $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
+
+        // connect to server
+        $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
+        
+        $msg = RequestCode::SAVE_RESULT . "|" . $_SESSION["username"] . "|" . $_SESSION['exam_id'] . "|" . $_SESSION['score'] . "|";
+
+        $ret = socket_write($socket, $msg, strlen($msg));
+        if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
+
+        // receive response from server
+        $response = socket_read($socket, 1024);
+        if (!$response) die("client read fail:" . socket_strerror(socket_last_error()) . "\n");
+
+        $response = explode("|", $response);
+        if ($response[0] == ResponseCode::SAVE_RESULT_SUCCESSFUL) {
+        } 
+    }
+
     $_SESSION['mode'] = "none";
     ?>
     <?php include_once("navbar.php") ?>

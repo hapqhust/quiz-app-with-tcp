@@ -64,6 +64,7 @@ typedef enum
     PARTICIPATED,
     NOT_PARTICIPATED,
 
+    DASHBOARD_NUM_ROW,
     DASHBOARD_INFO,
 
     END_GAME,
