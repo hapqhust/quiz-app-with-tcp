@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="https://cdn.korzh.com/metroui/v4/css/metro-all.min.css">
 
     <?php
+    require_once 'ProtocolCode/RequestCode.php';
+    require_once 'ProtocolCode/ResponseCode.php';
 
     use ProtocolCode\RequestCode;
     use ProtocolCode\ResponseCode;
@@ -78,7 +80,7 @@
                 echo "<script>alert('Creating a new exam is unsuccessful !');</script>";
                 echo "<script>window.location.href = 'index.php';</script>";
                 break;
-            case ResponseCode::QUESTION:
+            case ResponseCode::ADD_NEW_EXAM_SUCCESSFUL:
                 echo "<script>window.location.href = 'exam.php';</script>";
                 break;
         }
@@ -97,7 +99,7 @@
     // connect to server
     $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
-    $msg = "05|";
+    $msg = RequestCode::GET_LIST_TOPIC . "|";
 
     $ret = socket_write($socket, $msg, strlen($msg));
     if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -108,7 +110,7 @@
 
     $response = explode("|", $response);
 
-    if ($response[0] == "4") {
+    if ($response[0] == ResponseCode::SHOW_LIST_TOPIC) {
         $_SESSION['num_topic'] = $response[1];
         $_SESSION['topic_list'] = array();
     }

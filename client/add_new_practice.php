@@ -19,9 +19,11 @@
     <link href="assets/css/add_new.css" rel="stylesheet" />
 
     <?php
+    require_once 'ProtocolCode/RequestCode.php';
+    require_once 'ProtocolCode/ResponseCode.php';
 
     use ProtocolCode\RequestCode;
-use ProtocolCode\ResponseCode;
+    use ProtocolCode\ResponseCode;
 
     session_start();
 
@@ -63,7 +65,7 @@ use ProtocolCode\ResponseCode;
         if ($response[0] == ResponseCode::QUERY_FAIL) {
             echo "<script>alert('Creating a new practice is unsuccessful !');</script>";
             echo "<script>window.location.href = 'index.php';</script>";
-        } else if ($response[0] == ResponseCode::SHOW_PRACTICE_DETAIL) {
+        } else if ($response[0] == ResponseCode::ADD_NEW_PRACTICE_SUCCESSFUL) {
             echo "<script>window.location.href = 'practice.php';</script>";
         }
         socket_close($socket);
@@ -80,7 +82,7 @@ use ProtocolCode\ResponseCode;
     // connect to server
     $result = socket_connect($socket, $_SESSION['host_server'], $_SESSION['port']) or die("socket_connect() failed.\n");
 
-    $msg = "05|";
+    $msg =  RequestCode::GET_LIST_TOPIC . "|";
 
     $ret = socket_write($socket, $msg, strlen($msg));
     if (!$ret) die("client write fail:" . socket_strerror(socket_last_error()) . "\n");
@@ -91,7 +93,7 @@ use ProtocolCode\ResponseCode;
 
     $response = explode("|", $response);
 
-    if ($response[0] == "4") {
+    if ($response[0] == ResponseCode::SHOW_LIST_TOPIC) {
         $_SESSION['num_topic'] = $response[1];
         $_SESSION['topic_list'] = array();
     }
